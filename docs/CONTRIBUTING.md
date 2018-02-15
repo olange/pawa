@@ -7,9 +7,10 @@
 
 ## Prerequisites
 
-* Git client or command-line – for instance, install [GitHub Desktop](https://desktop.github.com)
-* Coding editor for instance [Visual Studio Code](https://code.visualstudio.com) or [Atom](https://atom.io)
-* [NodeJS](https://nodejs.org/en/) version 8, or more recent – NodeJS is a JavaScript runtime built on Chrome's V8 engine.
+* [Git](https://git-scm.com) client or command-line – for instance, install [GitHub Desktop](https://desktop.github.com)
+* A coding editor, for instance [Visual Studio Code](https://code.visualstudio.com), [Atom](https://atom.io), …
+* [NodeJS](https://nodejs.org/en/) version 8, or more recent – NodeJS is a JavaScript runtime built on Chrome's V8 engine
+* [Java SDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html) version 8, or more recent, which is needed to run the Neo4j database server – note the Java Runtime Environment (JRE) is not enough!
 
 ## Setup
 

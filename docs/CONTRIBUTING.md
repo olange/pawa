@@ -2,8 +2,8 @@
 
 ## Outline
 
-* [Prerequisites](#Prerequisites)
-* [Setup](#Setup)
+* [Prerequisites](#prerequisites)
+* [Setup](#setup)
 
 ## Prerequisites
 
@@ -22,19 +22,17 @@ npm install -g polymer-cli
 npm install -g bower
 ```
 
-### Get the sources
+### Get the sources and dependencies
 
 ```
 git clone git@github.com:olange/pawa.git
 cd pawa/
-```
-
-### Setup the client app
-
-```
-cd client/
 bower install
 ```
+
+### Setup the Neo4j database server
+
+Download the [Neo4j Community Server](https://neo4j.com/download/other-releases/#releases) – version 3.3 or more recent – and install it.
 
 ### Run the client app
 

@@ -1,0 +1,7 @@
+{
+  "name": "client",
+  "short_name": "client",
+  "description": "Animated boats and winds",
+  "start_url": "/",
+  "display": "standalone"
+}

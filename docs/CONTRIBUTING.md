@@ -42,6 +42,10 @@ cd server/
 tar zxvf ~/Downloads/neo4j-community-3.3.3-unix.tar.gz -C db
 ```
 
+Alternatively, for a Windows installation, download the ZIP archive (32-bit or 64-bit, depending on your computer – probably 64-bit for a recent machine) and unpack it to the `server/db/' folder of the project.
+
+See also: [Installation instructions](https://neo4j.com/docs/operations-manual/current/installation/) from Neo4j.
+
 ### Run the client app
 
 ```bash
@@ -58,7 +62,7 @@ cd pawa/server/db/
 neo4j-community-‹version›/bin/neo4j console
 ```
 
-And you should get an output along the lines:
+And you should see an output along the lines:
 
 ```bash
 Active database: graph.db
@@ -79,4 +83,4 @@ Starting Neo4j.
 2018-02-15 16:56:29.291+0000 INFO  Remote interface available at http://localhost:7474/
 ```
 
-Open a browser window and try to login to [`http://localhost:7474`](http://localhost:7474) with user `neo4j` and password `neo4j`, then change that initial password to one you'll remember easily while developing.
+Open a browser window and try to login to [`http://localhost:7474`](http://localhost:7474) with user `neo4j` and password `neo4j`. Then change that initial password to one you'll remember easily while developing.

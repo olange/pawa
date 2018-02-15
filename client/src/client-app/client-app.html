@@ -29,16 +29,21 @@
       }
 
       preload() {
-        this.load.setBaseURL('http://labs.phaser.io');
-        this.load.image('sky', 'assets/skies/space3.png');
-        this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-        this.load.image('red', 'assets/particles/red.png');
+        // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
+        var game = this; 
+        game.load.setBaseURL('http://labs.phaser.io');
+        game.load.image('sky', 'assets/skies/space3.png');
+        game.load.image('logo', 'assets/sprites/phaser3-logo.png');
+        game.load.image('red', 'assets/particles/red.png');
       }
 
       create() {
-        this.add.image( 400, 300, 'sky');
+        // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
+        var game = this;
 
-        var particles = this.add.particles( 'red');
+        game.add.image( 400, 300, 'sky');
+
+        var particles = game.add.particles( 'red');
 
         var emitter = particles.createEmitter({
             speed: 100,
@@ -46,7 +51,7 @@
             blendMode: 'ADD'
         });
 
-        var logo = this.physics.add.image( 400, 100, 'logo');
+        var logo = game.physics.add.image( 400, 100, 'logo');
 
         logo.setVelocity( 100, 200);
         logo.setBounce( 1, 1);

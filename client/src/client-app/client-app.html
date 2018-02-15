@@ -9,7 +9,7 @@
         display: block;
       }
     </style>
-    <h2>Hello [[prop1]]!</h2>
+    <h2>Hello [[greeting]]!</h2>
   </template>
 
   <script>
@@ -21,7 +21,7 @@
       static get is() { return 'client-app'; }
       static get properties() {
         return {
-          prop1: {
+          greeting: {
             type: String,
             value: 'Gus'
           }

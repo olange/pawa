@@ -15,6 +15,7 @@
     "start-db:win32": "%npm_package_config_neo4j_binroot_win32%\\bin\\neo4j.bat console",
     "start-db:linux:darwin": "${npm_package_config_neo4j_binroot_linux}/bin/neo4j console",
     "start-app": "cd client && polymer serve",
+    "install": "cd client && bower install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

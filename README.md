@@ -4,7 +4,13 @@ Web animation of boats riding the winds of lake Leman, using the [Phaser.io](htt
 
 ## Setup
 
-See the [contributing guide](docs/CONTRIBUTING.md) to setup your development environment.
+See the [contributing guide](docs/CONTRIBUTING.md) to setup your development environment. In a nutshell, here's how to download the sources and fetch the client app dependencies:
+
+```bash
+git clone git@github.com:olange/pawa.git
+cd pawa/
+npm install
+```
 
 ## Run
 

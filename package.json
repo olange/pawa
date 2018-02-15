@@ -7,10 +7,13 @@
     "doc": "docs"
   },
   "config": {
-    "neo4j-binroot": "server/db/neo4j-community-3.3.3"
+    "neo4j-binroot-linux": "server/db/neo4j-community-3.3.3",
+    "neo4j-binroot-win32": "server\\db\\neo4j-community-3.3.3"
   },
   "scripts": {
-    "start-db": "${npm_package_config_neo4j_binroot}/bin/neo4j console",
+    "start-db": "run-script-os",
+    "start-db:win32": "%npm_package_config_neo4j_binroot_win32%\\bin\\neo4j.bat console",
+    "start-db:linux:darwin": "${npm_package_config_neo4j_binroot_linux}/bin/neo4j console",
     "start-app": "cd client && polymer serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -31,5 +34,8 @@
   "bugs": {
     "url": "https://github.com/olange/pawa/issues"
   },
-  "homepage": "https://github.com/olange/pawa#readme"
+  "homepage": "https://github.com/olange/pawa#readme",
+  "devDependencies": {
+    "run-script-os": "^1.0.3"
+  }
 }

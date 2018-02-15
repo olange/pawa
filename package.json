@@ -1,0 +1,35 @@
+{
+  "name": "pawa",
+  "version": "1.0.0",
+  "description": "A web animation of boats and winds",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "config": {
+    "neo4j-binroot": "server/db/neo4j-community-3.3.3"
+  },
+  "scripts": {
+    "start-db": "${npm_package_config_neo4j_binroot}/bin/neo4j console",
+    "start-app": "cd client && polymer serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:olange/pawa.git"
+  },
+  "keywords": [
+    "animation",
+    "boat",
+    "wind",
+    "phaser",
+    "neo4j",
+    "polymer"
+  ],
+  "author": "Augustus Saalfeld and Olivier Lange",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/olange/pawa/issues"
+  },
+  "homepage": "https://github.com/olange/pawa#readme"
+}

@@ -30,7 +30,34 @@
 
       preload() {
         // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
-        var game = this; 
+        var game = this;
+
+        var store = {
+          getState() {
+            return {
+              winds: [
+                { name: 'Joran'},
+                { name: 'Bise' },
+                { name: 'Vaudaire' }
+              ],
+              boats: [
+                { position: {},
+                  dockingLocation: 'GVA', 
+                  targetLocation: 'LSNE' }
+              ],
+              locations: {
+                'LSNE': { name: 'Lausanne', position: {} },
+                'GVA': { name: 'Geneva', position: {} },
+              }
+            };
+          },
+          dispatch( state, action) {
+            // Redux will provide us with this later, just adding it as a preview
+            return undefined;
+          }
+        };
+        game.data.set( 'store', store);
+
         game.load.setBaseURL('http://labs.phaser.io');
         game.load.image('sky', 'assets/skies/space3.png');
         game.load.image('logo', 'assets/sprites/phaser3-logo.png');
@@ -40,6 +67,11 @@
       create() {
         // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
         var game = this;
+
+        const store = game.data.get('store');
+        const state = store.getState();
+        console.dir(store);
+        store.dispatch({ type: 'UPDATE_WINDS' });
 
         game.add.image( 400, 300, 'sky');
 

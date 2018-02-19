@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <script src="/bower_components/phaser/dist/phaser.js"></script>
 <script src="/bower_components/phaser/dist/phaser-arcade-physics.js"></script>
+<script src="/bower_components/immutable/dist/immutable.js"></script>
 
 <dom-module id="client-app">
   <template>
@@ -32,24 +33,42 @@
         // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
         var game = this;
 
+        const Boat = Immutable.Record({ position: undefined, dockingLocation: undefined, targetLocation: undefined }, 'Boat');
+        const Wind = Immutable.Record({ name: undefined }, 'Wind');
+        const Location = Immutable.Record({ name: undefined, position: undefined }, 'Location');
+        const Position = Immutable.Record({ lat: undefined, long: undefined, alt: undefined }, 'Position');
+        const DataModel = {
+          Boat: Boat,
+          Wind: Wind,
+          Location: Location,
+          Position: Position
+        };
+
         var store = {
           getState() {
-            return {
-              winds: [
-                { name: 'Joran'},
-                { name: 'Bise' },
-                { name: 'Vaudaire' }
-              ],
-              boats: [
-                { position: {},
+            return Immutable.Map({
+              winds: Immutable.List([
+                new Wind({ name: 'Joran'}),
+                new Wind({ name: 'Bise' }),
+                new Wind({ name: 'Vaudaire' })
+              ]),
+              boats: Immutable.List([
+                new Boat({
+                  position: new Position({ lat: 41.0, long: 6.0 }),
                   dockingLocation: 'GVA', 
-                  targetLocation: 'LSNE' }
-              ],
-              locations: {
-                'LSNE': { name: 'Lausanne', position: {} },
-                'GVA': { name: 'Geneva', position: {} },
-              }
-            };
+                  targetLocation: 'LSNE' })
+              ]),
+              locations: Immutable.Map({
+                'LSNE': new Location({
+                  name: 'Lausanne',
+                  position: new Position({ lat: 41.1, long: 6.0 })
+                }),
+                'GVA': new Location({
+                  name: 'Geneva',
+                  position: new Position({ lat: 39.9, long: 6.0 })
+                }),
+              })
+            });
           },
           dispatch( state, action) {
             // Redux will provide us with this later, just adding it as a preview
@@ -57,6 +76,7 @@
           }
         };
         game.data.set( 'store', store);
+        game.data.set( 'model', DataModel);
 
         game.load.setBaseURL('http://labs.phaser.io');
         game.load.image('sky', 'assets/skies/space3.png');
@@ -70,7 +90,7 @@
 
         const store = game.data.get('store');
         const state = store.getState();
-        console.dir(store);
+        console.dir(state);
         store.dispatch({ type: 'UPDATE_WINDS' });
 
         game.add.image( 400, 300, 'sky');

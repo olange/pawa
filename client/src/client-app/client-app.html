@@ -32,7 +32,8 @@
       preload() {
         // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
         var game = this;
-
+        this.load.spritesheet('boat', 'assets/boat/boat-spritesheet.png', { frameWidth: 200, frameHeight: 200, endFrame: 8 });
+        
         const Boat = Immutable.Record({ position: undefined, dockingLocation: undefined, targetLocation: undefined }, 'Boat');
         const Wind = Immutable.Record({ name: undefined }, 'Wind');
         const Location = Immutable.Record({ name: undefined, position: undefined }, 'Location');
@@ -92,9 +93,18 @@
         const state = store.getState();
         console.dir(state);
         store.dispatch({ type: 'UPDATE_WINDS' });
+        
+        this.add.image(0, 0, 'boat', 0);
+        this.add.image(200, 0, 'boat', 1);
+        this.add.image(400, 0, 'boat', 2);
+        this.add.image(600, 0, 'boat', 3);
+        this.add.image(0, 200, 'boat', 4);
+        this.add.image(200, 200, 'boat', 5);
+        this.add.image(400, 200, 'boat', 6);
+        this.add.image(600, 200, 'boat', 7);
 
         game.add.image( 400, 300, 'sky');
-
+        
         var particles = game.add.particles( 'red');
 
         var emitter = particles.createEmitter({

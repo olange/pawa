@@ -35,14 +35,32 @@
         this.load.spritesheet('boat', 'assets/boat/boat-spritesheet.png', { frameWidth: 200, frameHeight: 200, endFrame: 8 });
         
         const Boat = Immutable.Record({ position: undefined, dockingLocation: undefined, targetLocation: undefined }, 'Boat');
-        const Wind = Immutable.Record({ name: undefined }, 'Wind');
+        const Wind = Immutable.Record({ name: undefined, strength: 1, direction: 0 }, 'Wind');
         const Location = Immutable.Record({ name: undefined, position: undefined }, 'Location');
-        const Position = Immutable.Record({ lat: undefined, long: undefined, alt: undefined }, 'Position');
+        const Position = Immutable.Record({ x: undefined, y: undefined }, 'Position');
+        const Area = Immutable.Record({ position: undefined, wind: undefined, isSea: undefined }, 'Area');
+        
+        var latMax = 10;
+        var longMax = 10;
+
+        var Matrix = []
+        for(var y = 0; y< latMax; y++) {
+          Matrix[y] = [];
+          for(var x = 0; x < longMax; x++) {
+            Matrix[y][x] = new Area({
+                  position: new Position({ x: 41.1, y: 6.0 }),
+                  wind: new Wind({ name: 'Joran'}),
+                  isSea: true
+            });
+          }
+        }
+
         const DataModel = {
           Boat: Boat,
           Wind: Wind,
           Location: Location,
-          Position: Position
+          Position: Position,
+          Matrix: Matrix
         };
 
         var store = {
@@ -55,20 +73,23 @@
               ]),
               boats: Immutable.List([
                 new Boat({
-                  position: new Position({ lat: 41.0, long: 6.0 }),
+                  position: new Position({ x: 41.0, y: 6.0 }),
                   dockingLocation: 'GVA', 
                   targetLocation: 'LSNE' })
               ]),
               locations: Immutable.Map({
                 'LSNE': new Location({
                   name: 'Lausanne',
-                  position: new Position({ lat: 41.1, long: 6.0 })
+                  position: new Position({ x: 41.1, y: 6.0 })
                 }),
                 'GVA': new Location({
                   name: 'Geneva',
-                  position: new Position({ lat: 39.9, long: 6.0 })
+                  position: new Position({ x: 39.9, y: 6.0 })
                 }),
-              })
+              }),
+              windMatrix: Matrix
+              
+              //Inside this matrix will be the site details, an object or map or map of objects
             });
           },
           dispatch( state, action) {

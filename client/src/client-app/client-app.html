@@ -41,10 +41,10 @@
         
         const Boat = Immutable.Record({ position: undefined, direction: undefined, natSpeed: 1, originalPort: undefined, targetPort: undefined  }, 'Boat');
         const Wind = Immutable.Record({ name: undefined, strength: 1, direction: 0 }, 'Wind');
-        const Port = Immutable.Record({ name: undefined, position: undefined }, 'Port');
+        const Port = Immutable.Record({ name: undefined, geoLocation: undefined }, 'Port');
         const Position = Immutable.Record({ lat: undefined, long: undefined }, 'Position');
         const GeoLocation = Immutable.Record({ row: undefined, collumn: undefined }, 'GeoLocation');
-        const WeatherStation = Immutable.Record({ name: undefined, position: undefined, strength: 1, direction: 0 }, 'WeatherStation');
+        const WeatherStation = Immutable.Record({ name: undefined, geoLocation: undefined, strength: 1, direction: 0 }, 'WeatherStation');
         //const GeoLocation = Immutable.Record({ row: undefined, collumn: undefined}, 'geoLocation');
         
 
@@ -74,17 +74,17 @@
               ports: Immutable.Map({
                 'LSNE': new Port({
                   name: 'Lausanne',
-                  position: new Position({ lat: 41.1, long: 6.0 })
+                  geoLocation: new GeoLocation({ row: 1, collumn: 6 })
                 }),
                 'GVA': new Port({
                   name: 'Geneva',
-                  position: new Position({ lat: 39.9, long: 6.0 })
+                  geoLocation: new GeoLocation({ row: 2, collumn: 6 })
                 }),
               }),
               weatherStations: Immutable.Map({
                 'WeatherStation1': new WeatherStation({
                   name: 'WeatherStation1',
-                  position: new Position({ lat: 41.1, long: 6.0 })
+                  geoLocation: new GeoLocation({ row: 4, collumn: 2 })
                 })
               })
             });
@@ -123,7 +123,8 @@
         //this.cameras.main.setPosition(-800, -800);
         //this.cameras.main.setViewport(0, 0, 1600, 1200);
 
-        var spriteB = this.add.sprite(100, 100, 'boat', 0);
+        var spriteB = this.add.sprite(0, 0, 'boat', 0);
+        
         this.add.sprite(300, 100, 'boat', 1);
         this.add.sprite(500, 100, 'boat', 2);
         this.add.sprite(700, 100, 'boat', 3);
@@ -265,6 +266,8 @@
       
 
       function drawWindSprite(windStrength, geoPosX, geoPosY, rotWind, phaserGame) {
+        const Position = Immutable.Record({ lat: undefined, long: undefined }, 'Position');
+        
         var windSpriteType = 0;
         if(windStrength == 1) {
           windSpriteType = 1;
@@ -277,9 +280,10 @@
         //This only works assuming position is a matrix like geolocation, otherwise add geolocation value
         //(phaserGame.windSpriteWidth / 2)
         //  + (phaserGame.windSpriteHeight / 2)
-        var windSpriteDrawX = (geoPosX * geometricScaler() + geometricMinX() + (100 / 2));   //Must change 100 to windSpriteWidth, but can't get it to be called here
-        var windSpriteDrawY = (geoPosY * geometricScaler() + geometricMinY() + (100 / 2)); //Must change 100 to windspriteWidth
-        
+        var windSpriteDrawX = (convertMatrixToCoordinates(geoPosX).lat);   
+        var windSpriteDrawY = (convertMatrixToCoordinates(geoPosX).long); 
+        //Does this really get a point? No it gets the top corner of a point
+
         //var test = phaserGame.windSpriteWidth;
 
         var wind = phaserGame.add.sprite(windSpriteDrawX, windSpriteDrawY, 'wind', windSpriteType); //Not sure this is correct
@@ -287,6 +291,13 @@
 
       }
       
+      function convertMatrixToCoordinates(geoPosX, geoPosY) {
+        const Position = Immutable.Record({ lat: undefined, long: undefined }, 'Position');
+        realX = geoPosX * geometricScaler() + geometricMinX() + (geometricScaler() * 0.5);
+        realY = geoPosY * geometricScaler() + geometricMinY() + (geometricScaler() * 0.5);
+        return new Position({ lat: realX, long: realY });
+      }
+
       //Use to scale geometric back to x and y
       function geometricScaler() {
         return 10;

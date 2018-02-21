@@ -256,7 +256,7 @@
           }
         } 
         
-        var boatS = phaserGame.add.sprite(posX, posY, 'boat', sailType[calcSailType]); //Not sure this is correct
+        var boatS = phaserGame.add.sprite(geoPosX, geoPosY, 'boat', sailType[calcSailType]); //Not sure this is correct
         boatS.rotation = rotBoat;
       }  
      
@@ -264,7 +264,7 @@
       //Send wind coordiantes, then get the wind drawn in the geocordinates by a draw windsprite function
       
 
-      function drawWindSprite(windStrength, posX, posY, rotWind, phaserGame) {
+      function drawWindSprite(windStrength, geoPosX, geoPosY, rotWind, phaserGame) {
         var windSpriteType = 0;
         if(windStrength == 1) {
           windSpriteType = 1;
@@ -277,8 +277,8 @@
         //This only works assuming position is a matrix like geolocation, otherwise add geolocation value
         //(phaserGame.windSpriteWidth / 2)
         //  + (phaserGame.windSpriteHeight / 2)
-        var windSpriteDrawX = (posX * geometricScaler() + geometricMinX() + (100 / 2));   //Must change 100 to windSpriteWidth, but can't get it to be called here
-        var windSpriteDrawY = (posY * geometricScaler() + geometricMinY() + (100 / 2)); //Must change 100 to windspriteWidth
+        var windSpriteDrawX = (geoPosX * geometricScaler() + geometricMinX() + (100 / 2));   //Must change 100 to windSpriteWidth, but can't get it to be called here
+        var windSpriteDrawY = (geoPosY * geometricScaler() + geometricMinY() + (100 / 2)); //Must change 100 to windspriteWidth
         
         //var test = phaserGame.windSpriteWidth;
 

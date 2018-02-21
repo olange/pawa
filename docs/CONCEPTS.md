@@ -2,9 +2,30 @@
 
 ## Overview
 
-The animation is built with the Phaser Game Engine.
+The animation is built with the Phaser Game Engine, as an application running in a web browser, using Polymer Web Components and an immutable Redux datastore.
 
-## Core
+On the back-end, the app uses a graph database, Neo4j, to calculate shortests paths of the boats, depending on the current wind flow field.
+
+And if time permits, the back-end will fetch meteorologic data from remote servers and feed the database from the live data.
+
+## Data model
+
+* _Front-end data model_ — with _boats_, _weather stations_, _ports_, _lake contour_, _shortest paths_ and _wind flow field_.
+* _Back-end data model_ – with wind flow field and possible paths among the cells of the flow field, weighted by the wind speed.
+* as well as a _geographic mesh_ euclidian coordinate system, used in both the front-end and back-end data models, to represent locations of the various entities.
+
+## Animation techniques
+
+* Perlin Noise and Simplex Noise
+* Path following
+* Flow field
+
+## Core libraries
+
+### Datastore
+
+* [Immutable JS API](https://facebook.github.io/immutable-js/docs/#/) – we used mostly [Records](https://facebook.github.io/immutable-js/docs/#/Record), [Maps](https://facebook.github.io/immutable-js/docs/#/Map), [Lists](https://facebook.github.io/immutable-js/docs/#/List) and [Sets](https://facebook.github.io/immutable-js/docs/#/Set)
+* [Redux API](https://redux.js.org)
 
 ### Phaser Game Engine
 

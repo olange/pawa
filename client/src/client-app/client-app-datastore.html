@@ -1,0 +1,97 @@
+<link rel="import" href="../libs/immutable-js.html">
+<link rel="import" href="../libs/redux-js.html">
+
+<script>
+  const Schema = {
+    Wind:
+      Immutable.Record({
+        name: undefined,
+        strength: 1.0,
+        direction: 0
+      }, 'Wind'),
+    Boat:
+      Immutable.Record({
+        position: undefined,
+        direction: undefined,
+        natSpeed: 1,
+        originalPort: undefined,
+        targetPort: undefined
+      }, 'Boat'),
+    Port:
+      Immutable.Record({
+        name: undefined,
+        position: undefined
+      }, 'Port'),
+    Position:
+      Immutable.Record({
+        lat: undefined,
+        long: undefined
+      }, 'Position'),
+    GeoLocation:
+      Immutable.Record({
+        row: undefined,
+        column: undefined
+      }, 'GeoLocation'),
+    WeatherStation:
+      Immutable.Record({
+        name: undefined,
+        position: undefined,
+        strength: 1.0,
+        direction: 0
+      }, 'WeatherStation')
+  };
+
+  class ClientAppDatastore {
+    static get schema() {
+      return Schema;
+    }
+
+    reducer( state = Immutable.Map(), action) {
+      switch (action.type) {
+        case 'INCREASE_WINDS':
+          return state.update( 'winds', (winds) =>
+            winds.map( (wind) =>
+              wind.update( 'strength', (strength) => 1.0 + strength)))
+        default:
+          return state
+      }
+    }
+
+    initialState() {
+      return Immutable.Map({
+        winds: Immutable.List([
+          new Schema.Wind({ name: 'Joran'}),
+          new Schema.Wind({ name: 'Bise' }),
+          new Schema.Wind({ name: 'Vaudaire' })
+        ]),
+        boats: Immutable.List([
+          new Schema.Boat({
+            position: new Schema.Position({ lat: 41.0, long: 6.0 }),
+            direction: 0,
+            originalPort: 'GVA', 
+            targetPort: 'LSNE' })
+        ]),
+        ports: Immutable.Map({
+          'LSNE': new Schema.Port({
+            name: 'Lausanne',
+            position: new Schema.Position({ lat: 41.1, long: 6.0 })
+          }),
+          'GVA': new Schema.Port({
+            name: 'Geneva',
+            position: new Schema.Position({ lat: 39.9, long: 6.0 })
+          }),
+        }),
+        weatherStations: Immutable.Map({
+          'WeatherStation1': new Schema.WeatherStation({
+            name: 'WeatherStation1',
+            position: new Schema.Position({ lat: 41.1, long: 6.0 })
+          })
+        })
+      });
+    }
+
+    constructor() {
+      this.store = Redux.createStore( this.reducer, this.initialState());
+    }
+  }
+</script>

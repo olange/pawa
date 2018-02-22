@@ -2,7 +2,7 @@
 <link rel="import" href="../libs/phaser-js.html">
 <link rel="import" href="../libs/phaser-arcade-physics-js.html">
 <link rel="import" href="../libs/immutable-js.html">
-<link rel="import" href="../libs/redux-js.html">
+<link rel="import" href="client-app-datastore.html">
 
 <dom-module id="client-app">
   <template>
@@ -99,12 +99,9 @@
           })
         });
 
-        let store = Redux.createStore( storeReducer, initialState);
-        console.log( 'Initial state of the store:');
-        console.dir( store.getState());
-
-        game.data.set( 'store', store);
-        game.data.set( 'model', DataModel);
+        let clientAppDatastore = new ClientAppDatastore();
+        game.data.set( 'store', clientAppDatastore.store);
+        game.data.set( 'schema', clientAppDatastore.schema);
 
         // game.load.setBaseURL('http://labs.phaser.io');
         game.load.image('background', 'assets/background.png');
@@ -116,12 +113,15 @@
         // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
         var game = this;
 
-        const store = game.data.get('store');
-        store.dispatch({ type: 'INCREASE_WINDS' });
+        const store = game.data.get( 'store');
 
-        const state = store.getState();
-        console.log( 'State of the store, after increasing strength of all winds:');
+        console.log( 'Initial state of the store:');
         console.dir( store.getState());
+
+        console.log( 'State of the store, after increasing strength of all winds:');
+        store.dispatch({ type: 'INCREASE_WINDS' });
+        console.dir( store.getState());
+
         //https://github.com/photonstorm/phaser/blob/0c895db8a064357f575fe4987a6e7af07fe14358/src/cameras/2d/Camera.js
         
         //PROBLEM:Zooming out and readjusting viewport means that things don't render beyond 1200 x 900
@@ -191,8 +191,7 @@
           }
         };
 
-        this.game = new Phaser.Game( this.config);
-        
+        this.game = new Phaser.Game( this.config); 
       }
     }
 

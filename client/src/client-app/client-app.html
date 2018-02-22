@@ -1,7 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../libs/immutable-js.html">
 <link rel="import" href="../libs/phaser-js.html">
 <link rel="import" href="../libs/phaser-arcade-physics-js.html">
+<link rel="import" href="../libs/immutable-js.html">
+<link rel="import" href="../libs/redux-js.html">
 
 <dom-module id="client-app">
   <template>
@@ -40,7 +41,7 @@
         this.load.spritesheet('wind', 'assets/boat/boat-spritesheet.png', { frameWidth: windSpriteWidth, frameHeight: windSpriteHeight, endFrame: 3 });
         
         const Boat = Immutable.Record({ position: undefined, direction: undefined, natSpeed: 1, originalPort: undefined, targetPort: undefined  }, 'Boat');
-        const Wind = Immutable.Record({ name: undefined, strength: 1, direction: 0 }, 'Wind');
+        const Wind = Immutable.Record({ name: undefined, strength: 1.0, direction: 0 }, 'Wind');
         const Port = Immutable.Record({ name: undefined, position: undefined }, 'Port');
         const Position = Immutable.Record({ lat: undefined, long: undefined }, 'Position');
         const GeoLocation = Immutable.Record({ row: undefined, collumn: undefined }, 'GeoLocation');
@@ -56,44 +57,52 @@
           weatherstations: WeatherStation
         };
 
-        var store = {
-          getState() {
-            return Immutable.Map({
-              winds: Immutable.List([
-                new Wind({ name: 'Joran'}),
-                new Wind({ name: 'Bise' }),
-                new Wind({ name: 'Vaudaire' })
-              ]),
-              boats: Immutable.List([
-                new Boat({
-                  position: new Position({ lat: 41.0, long: 6.0 }),
-                  direction: 0,
-                  originalPort: 'GVA', 
-                  targetPort: 'LSNE' })
-              ]),
-              ports: Immutable.Map({
-                'LSNE': new Port({
-                  name: 'Lausanne',
-                  position: new Position({ lat: 41.1, long: 6.0 })
-                }),
-                'GVA': new Port({
-                  name: 'Geneva',
-                  position: new Position({ lat: 39.9, long: 6.0 })
-                }),
-              }),
-              weatherStations: Immutable.Map({
-                'WeatherStation1': new WeatherStation({
-                  name: 'WeatherStation1',
-                  position: new Position({ lat: 41.1, long: 6.0 })
-                })
-              })
-            });
-          },
-          dispatch( state, action) {
-            // Redux will provide us with this later, just adding it as a preview
-            return undefined;
+        let storeReducer = function (state = Immutable.Map(), action) {
+          switch (action.type) {
+            case 'INCREASE_WINDS':
+              return state.update( 'winds', (winds) =>
+                winds.map( (wind) =>
+                  wind.update( 'strength', (strength) => 1.0 + strength)))
+            default:
+              return state
           }
         };
+
+        var initialState = Immutable.Map({
+          winds: Immutable.List([
+            new Wind({ name: 'Joran'}),
+            new Wind({ name: 'Bise' }),
+            new Wind({ name: 'Vaudaire' })
+          ]),
+          boats: Immutable.List([
+            new Boat({
+              position: new Position({ lat: 41.0, long: 6.0 }),
+              direction: 0,
+              originalPort: 'GVA', 
+              targetPort: 'LSNE' })
+          ]),
+          ports: Immutable.Map({
+            'LSNE': new Port({
+              name: 'Lausanne',
+              position: new Position({ lat: 41.1, long: 6.0 })
+            }),
+            'GVA': new Port({
+              name: 'Geneva',
+              position: new Position({ lat: 39.9, long: 6.0 })
+            }),
+          }),
+          weatherStations: Immutable.Map({
+            'WeatherStation1': new WeatherStation({
+              name: 'WeatherStation1',
+              position: new Position({ lat: 41.1, long: 6.0 })
+            })
+          })
+        });
+
+        let store = Redux.createStore( storeReducer, initialState);
+        console.log( 'Initial state of the store:');
+        console.dir( store.getState());
+
         game.data.set( 'store', store);
         game.data.set( 'model', DataModel);
 
@@ -108,9 +117,11 @@
         var game = this;
 
         const store = game.data.get('store');
+        store.dispatch({ type: 'INCREASE_WINDS' });
+
         const state = store.getState();
-        console.dir(state);
-        store.dispatch({ type: 'UPDATE_WINDS' });
+        console.log( 'State of the store, after increasing strength of all winds:');
+        console.dir( store.getState());
         //https://github.com/photonstorm/phaser/blob/0c895db8a064357f575fe4987a6e7af07fe14358/src/cameras/2d/Camera.js
         
         //PROBLEM:Zooming out and readjusting viewport means that things don't render beyond 1200 x 900

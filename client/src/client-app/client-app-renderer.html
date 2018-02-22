@@ -97,10 +97,11 @@
         if (calcSailType > 2) { 
           calcSailType = calcSailType - 2;
         }
-        console.log( sailTypeHolder[ calcSailType]);
 
         const boatS = scene.add.sprite( pos.x, pos.y, 'boat', sailTypeHolder[ calcSailType]); //Not sure this is correct
         boatS.setAngle( rotBoat);
+        boatS.setInteractive();
+        boatS.on( 'pointerdown', function boatClicked() { boatS.setTint( Math.random() * 16000000); });
       }, // drawBoatSprite
 
       //If we are sending the wind object itself, change so it accepts that wind, and then changes the sprite it is associated with
@@ -119,9 +120,7 @@
         //This only works assuming position is a matrix like geolocation, otherwise add geolocation value
         //(phaserGame.windSpriteWidth / 2)
         //  + (phaserGame.windSpriteHeight / 2)
-        console.dir( geoPos);
         const windSpriteDraw = Renderer.convertMatrixToCoordinates( geoPos);
-        console.dir( windSpriteDraw);
 
         //Does this really get a point? No it gets the top corner of a point
 

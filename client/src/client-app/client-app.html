@@ -1,6 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<script src="/bower_components/phaser/dist/phaser.js"></script>
-<script src="/bower_components/phaser/dist/phaser-arcade-physics.js"></script>
+<link rel="import" href="../libs/phaser-js.html">
+<link rel="import" href="../libs/phaser-arcade-physics-js.html">
+<link rel="import" href="../libs/immutable-js.html">
+<link rel="import" href="client-app-datastore.html">
+<link rel="import" href="client-app-renderer.html">
 
 <dom-module id="client-app">
   <template>
@@ -29,35 +32,49 @@
       }
 
       preload() {
-        // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
-        var game = this; 
-        game.load.setBaseURL('http://labs.phaser.io');
-        game.load.image('sky', 'assets/skies/space3.png');
-        game.load.image('logo', 'assets/sprites/phaser3-logo.png');
-        game.load.image('red', 'assets/particles/red.png');
+        // Note: Phaser sets `this` to the current Phaser Scene instance before calling this function
+        const scene = this;
+
+        scene.data.set( 'store', Datastore); // declared within client-app-datastore.html
+        scene.data.set( 'schema', Schema); // declared within client-app-datastore.html
+        console.dir( scene);
+
+        scene.load.spritesheet( 'boat', 'assets/boat-spritesheet.png', { frameWidth: 128, frameHeight: 128, endFrame: 3 });
+        scene.load.spritesheet( 'wind', 'assets/wind-spritesheet.png', { frameWidth: 64, frameHeight: 64, endFrame: 3 });        
+        scene.load.image( 'background', 'assets/background.png');
+      }
+      
+      create() {
+        // Note: Phaser sets `this` to the Phaser Scene instance before calling this function
+        const scene = this;
+        const store = scene.data.get( 'store');
+        const unsubscribe = store.subscribe( function handleChange() { console.dir( store.getState()); });
+        console.dir( store.getState());
+
+        //PROBLEM:Zooming out and readjusting viewport means that things don't render beyond 1200 x 900
+        scene.cameras.main.setZoom( 0.5);
+        scene.add.image( 400, 300, 'background');
+        //Current Map size: 1600 x 1200
+
+        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 0, column: 0 }), 0, 0);
+        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 1, column: 0 }), 1, 90);
+        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 2, column: 0 }), 2, 45);
+        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 3, column: 0 }), 1, -45);
+        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 4, column: 0 }), 2, -90);
+        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 5, column: 0 }), 0, 0);
+        Renderer.drawBoatSprite( scene, new Schema.Position({ x: 800, y: 500 }), 0, 180);
       }
 
-      create() {
-        // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
-        var game = this;
-
-        game.add.image( 400, 300, 'sky');
-
-        var particles = game.add.particles( 'red');
-
-        var emitter = particles.createEmitter({
-            speed: 100,
-            scale: { start: 1, end: 0 },
-            blendMode: 'ADD'
-        });
-
-        var logo = game.physics.add.image( 400, 100, 'logo');
-
-        logo.setVelocity( 100, 200);
-        logo.setBounce( 1, 1);
-        logo.setCollideWorldBounds( true);
-
-        emitter.startFollow( logo);
+      update() {
+        const UPDATE_FREQ = 10000; // 10000ms = 10s
+        const scene = this;
+        const now = scene.time.now;
+        const lastTime = scene.data.get( 'lastTime');
+        if ((lastTime === undefined) || (now - lastTime > UPDATE_FREQ)) {
+          scene.data.set( 'lastTime', now);
+          const store = scene.data.get( 'store');
+          store.dispatch( { type: 'INCREASE_WINDS' });
+        }
       }
 
       constructor() {
@@ -70,18 +87,19 @@
           physics: {
             default: 'arcade',
             arcade: {
-              gravity: { y: 200 }
+              gravity: { y: 0 }
             }
           },
           scene: {
             preload: this.preload,
-            create: this.create
+            create: this.create,
+            update: this.update
           }
         };
 
-        this.game = new Phaser.Game( this.config);
-      }
-    }
+        this.game = new Phaser.Game( this.config); 
+      } // constructor
+    } // class
 
     window.customElements.define( ClientApp.is, ClientApp);
   </script>

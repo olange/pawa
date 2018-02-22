@@ -32,58 +32,31 @@
       }
 
       preload() {
-        // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
+        // Note: Phaser sets `this` to the current Phaser Scene instance before calling this function
         const scene = this;
-        const windSpriteWidth = 64;
-        const windSpriteHeight = 64;
-        //IF REDUX ISN'T WORKING, GO ADD REDUX.JS and dist folder in bower_components/redux
 
-        scene.load.spritesheet('boat', 'assets/boat-spritesheet.png', { frameWidth: 128, frameHeight: 128, endFrame: 3 });
-        scene.load.spritesheet('wind', 'assets/wind-spritesheet.png', { frameWidth: windSpriteWidth, frameHeight: windSpriteHeight, endFrame: 3 });
-        
         scene.data.set( 'store', Datastore); // declared within client-app-datastore.html
         scene.data.set( 'schema', Schema); // declared within client-app-datastore.html
         console.dir( scene);
 
-        // scene.load.setBaseURL('http://labs.phaser.io');
-        scene.load.image('background', 'assets/background.png');
-        scene.load.image('logo', 'assets/sprites/phaser3-logo.png');
-        scene.load.image('red', 'assets/particles/red.png');
+        scene.load.spritesheet( 'boat', 'assets/boat-spritesheet.png', { frameWidth: 128, frameHeight: 128, endFrame: 3 });
+        scene.load.spritesheet( 'wind', 'assets/wind-spritesheet.png', { frameWidth: 64, frameHeight: 64, endFrame: 3 });        
+        scene.load.image( 'background', 'assets/background.png');
       }
       
       create() {
-        // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
+        // Note: Phaser sets `this` to the Phaser Scene instance before calling this function
         const scene = this;
-
         const store = scene.data.get( 'store');
 
-        console.log( 'Initial state of the store:');
-        console.dir( store.getState());
-
-        console.log( 'State of the store, after increasing strength of all winds:');
         store.dispatch( { type: 'INCREASE_WINDS' });
         console.dir( store.getState());
 
-        //https://github.com/photonstorm/phaser/blob/0c895db8a064357f575fe4987a6e7af07fe14358/src/cameras/2d/Camera.js
-        
         //PROBLEM:Zooming out and readjusting viewport means that things don't render beyond 1200 x 900
-        scene.cameras.main.setZoom(0.5);
-        scene.add.image(400, 300,'background');
+        scene.cameras.main.setZoom( 0.5);
+        scene.add.image( 400, 300, 'background');
         //Current Map size: 1600 x 1200
 
-        //scene.cameras.main.setZoom(0.5);
-        //scene.cameras.main.setSize(500, 600);
-
-        //scene.cameras.main.setViewport(-200, -150, 800, 600);
-        //scene.cameras.main.setPosition(-850, -700);
-        //scene.cameras.main.setPosition(-800, -800);
-        //scene.cameras.main.setViewport(0, 0, 1600, 1200);
-        
-
-        //scene.add.sprite(-300, -200, 'boat', 7);
-
-        
-        //Renderer.drawBoatSprite(800, 400, 20, 320);
         Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 0, column: 0 }), 0, 0);
         Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 1, column: 0 }), 1, 90);
         Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 2, column: 0 }), 2, 45);
@@ -91,26 +64,6 @@
         Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 4, column: 0 }), 2, -90);
         Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 5, column: 0 }), 0, 0);
         Renderer.drawBoatSprite( scene, new Schema.Position({ x: 800, y: 500 }), 0, 180);
-
-        //spriteB.setPosition(0, 0);
-        
-        //scene.add.image( 400, 300, 'sky');
-        
-        var particles = scene.add.particles( 'red');
-
-        var emitter = particles.createEmitter({
-            speed: 100,
-            scale: { start: 1, end: 0 },
-            blendMode: 'ADD'
-        });
-
-        var logo = scene.physics.add.image( 400, 100, 'logo');
-
-        logo.setVelocity( 100, 200);
-        logo.setBounce( 1, 1);
-        logo.setCollideWorldBounds( true);
-        
-        emitter.startFollow( logo);
       }
 
       constructor() {
@@ -123,7 +76,7 @@
           physics: {
             default: 'arcade',
             arcade: {
-              gravity: { y: 100 }
+              gravity: { y: 0 }
             }
           },
           scene: {

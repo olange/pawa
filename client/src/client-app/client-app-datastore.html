@@ -25,8 +25,8 @@
         }, 'Port'),
       Position:
         Immutable.Record({
-          lat: undefined,
-          long: undefined
+          x: undefined,
+          y: undefined
         }, 'Position'),
       GeoLocation:
         Immutable.Record({
@@ -77,7 +77,7 @@
       ]),
       boats: Immutable.List([
         new Schema.Boat({
-          position: new Schema.Position({ lat: 41.0, long: 6.0 }),
+          position: new Schema.Position({ x: 41.0, y: 6.0 }),
           direction: 0,
           originalPort: 'GVA', 
           targetPort: 'LSNE' })
@@ -85,17 +85,17 @@
       ports: Immutable.Map({
         'LSNE': new Schema.Port({
           name: 'Lausanne',
-          position: new Schema.Position({ lat: 41.1, long: 6.0 })
+          position: new Schema.Position({ x: 41.1, y: 6.0 })
         }),
         'GVA': new Schema.Port({
           name: 'Geneva',
-          position: new Schema.Position({ lat: 39.9, long: 6.0 })
+          position: new Schema.Position({ x: 39.9, y: 6.0 })
         }),
       }),
       weatherStations: Immutable.Map({
         'WeatherStation1': new Schema.WeatherStation({
           name: 'WeatherStation1',
-          position: new Schema.Position({ lat: 41.1, long: 6.0 })
+          position: new Schema.Position({ x: 41.1, y: 6.0 })
         })
       })
     });

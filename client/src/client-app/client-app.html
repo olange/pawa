@@ -82,16 +82,15 @@
         //scene.add.sprite(-300, -200, 'boat', 7);
 
         
-        //drawBoatSprite(800, 400, 20, 320, scene);
-        drawWindSprite(0, 0, 0, 0, scene);
-        drawWindSprite(1, 0, 1, 0, scene);
-        drawWindSprite(2, 0, 2, 0, scene);
-        drawWindSprite(3, 0, 1, 0, scene);
-        drawWindSprite(4, 0, 1, 0, scene);
-        drawWindSprite(5, 0, 1, 0, scene);
-        
-        drawBoatSprite(800, 500, 0, 180, scene);
-        
+        //drawBoatSprite(800, 400, 20, 320);
+        this.drawWindSprite( 0, 0, 0, 0);
+        this.drawWindSprite( 1, 0, 1, 0);
+        this.drawWindSprite( 2, 0, 2, 0);
+        this.drawWindSprite( 3, 0, 1, 0);
+        this.drawWindSprite( 4, 0, 1, 0);
+        this.drawWindSprite( 5, 0, 1, 0);
+        this.drawBoatSprite( 800, 500, 0, 180);
+
         //spriteB.setPosition(0, 0);
         
         //scene.add.image( 400, 300, 'sky');
@@ -133,143 +132,140 @@
         };
 
         this.game = new Phaser.Game( this.config); 
-      }
-    }
+      } // constructor
 
-    function geometricReference(posX, posY, phaserGame) {
-        const GeoLocation = Immutable.Record({ row: undefined, collumn: undefined }, 'GeoLocation'); //Could replace with this. new geolocation if you learn how that works and it is necessary
+      geometricReference( position) {
         var run = true;
-      
+
         //Currently since Camera is set on (0,0), the top right starts at (-300,-200)
+        const minX = geometricMinX();
+        const minY = geometricMinY();
+        const scale = geometricScaler();
+
+        var posX = position.long;
+        var posY = position.lat;
+
         var r = 0;
         var c = 0;
-
-        while(posX > geometricMinX()) {
-          posX = posX - geometricScaler();
+        while( posX > minX) {
+          posX = posX - scale;
           r++;
         }
-        while(posY > geometricMinY()) {
-          posY = posY - geometricScaler();
+        while( posY > minY) {
+          posY = posY - scale;
           c++;
         }
-        
+
         //returns a record with the row and collumn its in
-        return new GeoLocation({
+        return new Schema.GeoLocation({
           row: r,
-          collumn: c
+          column: c
         });
+      } // geometricReference
+
+      convertMatrixToCoordinates( geoloc) {
+        const geoLocCol = geoloc.col;
+        const geoLocRow = geoloc.row;
+        var realX = (0.5 + geoLocCol) * geometricScaler() + geometricMinX();
+        var realY = (0.5 + geoLocRow) * geometricScaler() + geometricMinY();
+        return new Schema.Position({ long: realX, lat: realY });
+      }
+
+      //Use to scale geometric back to x and y
+      //Currently 16 by 12 squares, each square is 50 pixels
+      geometricScaler() {
+        return 100;
+      }
+
+      geometricMinX() {
+        return -300;
+      }
+
+      geometricMinY() {
+        return -200;
       }
       //Create function called isLand?
 
       //The parameters create new variables right?
-      function drawBoatSprite( posX, posY, windDirection, rotBoat, phaserGame) {
-
+      // Answer: depends on whether the argument is of a primitive type (Int, Float, …)
+      // or an object. If it is primitive, yes. Otherwise no, you get new references…
+      // to the object; and if you mutate a property of the object, then you mutate
+      // the original object! Best practice: never update arguments; or create duplicates
+      // of objects, when the arguments are objects and you would need to return a
+      // updated version of the orignal object: `Object.assign( {}, arg, { … });`
+      drawBoatSprite( pos, windDirection, rotBoat) {
         var boatDirQuadrant = 0;
         var sailTypeHolder = [1, 2, 1, 0];  //Look at paper I made showing how wind interacts with different sail directions
         var calcSailType = 0;
         var sailType = 0;
 
-        if(rotBoat >= 315 || rotBoat < 45) {
+        if (rotBoat >= 315 || rotBoat < 45) {
           //facing up
           boatDirQuadrant = 0;
-
         } else if (rotBoat >=  45 && rotBoat < 135) {
           //facing right
           boatDirQuadrant = 1;
-
         } else if (rotBoat >= 135 &&  rotBoat < 225) {
           //facing down
           boatDirQuadrant = 2;
-
         } else if (rotBoat >=  225 && rotBoat < 315) {
           //facing left
           boatDirQuadrant = 3;
-
         }
 
-
-         if(windDirection >= 315 || windDirection < 45) {
+        if (windDirection >= 315 || windDirection < 45) {
           //If wind Direction is either north
           calcSailType = boatDirQuadrant;
-          
-        } else if(windDirection >=  45 && windDirection < 135) {
+        } else if (windDirection >=  45 && windDirection < 135) {
           //If the wind direction is East
           calcSailType = boatDirQuadrant + 1;
-          if(calcSailType > 2) { 
-            calcSailType = calcSailType - 2;
-          }
-        } else if (windDirection >= 135 &&  windDirection < 225) {
+        } else if (windDirection >= 135 && windDirection < 225) {
           //South
           calcSailType = boatDirQuadrant + 2;
-          if(calcSailType > 2) { 
-            calcSailType = calcSailType - 2;
-          }
-        } else if (windDirection >=  225 && windDirection < 315){
+        } else if (windDirection >=  225 && windDirection < 315) {
           //If the wind direction is west
           calcSailType = boatDirQuadrant + 3;
-          if(calcSailType > 2) { 
-            calcSailType = calcSailType - 2;
-          }
-        } 
+        }
 
-        console.log(sailTypeHolder[calcSailType]);
-        var boatS = phaserGame.add.sprite(posX, posY, 'boat', sailTypeHolder[calcSailType]); //Not sure this is correct
-        boatS.setAngle(rotBoat);
-      }  
-     
+        if (calcSailType > 2) { 
+          calcSailType = calcSailType - 2;
+        }
+        console.log( sailTypeHolder[ calcSailType]);
+
+        const scene = this;
+        const boatS = scene.add.sprite( pos.x, pos.y, 'boat', sailTypeHolder[ calcSailType]); //Not sure this is correct
+        boatS.setAngle( rotBoat);
+      } // drawBoatSprite
+
       //If we are sending the wind object itself, change so it accepts that wind, and then changes the sprite it is associated with
       //Send wind coordiantes, then get the wind drawn in the geocordinates by a draw windsprite function
-      
 
-      function drawWindSprite(geoPosX, geoPosY, windStrength, rotWind, phaserGame) {
-        const Position = Immutable.Record({ lat: undefined, long: undefined }, 'Position');
-        
+      drawWindSprite( geoPos, windStrength, rotWind) {
         var windSpriteType = 0;
-        if(windStrength == 1) {
+        if (windStrength == 1) {
           windSpriteType = 1;
-        } else if(windStrength == 2) {
+        } else if (windStrength == 2) {
           windSpriteType = 2;
-        } else if(windStrength == 3) {
+        } else if (windStrength == 3) {
           windSpriteType = 3;
         }
-        
+
         //This only works assuming position is a matrix like geolocation, otherwise add geolocation value
         //(phaserGame.windSpriteWidth / 2)
         //  + (phaserGame.windSpriteHeight / 2)
-        var windSpriteDrawX = convertMatrixToCoordinates(geoPosX, geoPosY).lat;   
-        var windSpriteDrawY = convertMatrixToCoordinates(geoPosX, geoPosY).long; 
+        const windSpriteDraw = convertMatrixToCoordinates( geoPos);
 
         //Does this really get a point? No it gets the top corner of a point
 
         //var test = phaserGame.windSpriteWidth;
 
-        var wind = phaserGame.add.sprite(windSpriteDrawX, windSpriteDrawY, 'wind', windSpriteType); //Not sure this is correct
-        
+        const scene = this;
+        const wind = scene.add.sprite( windSpriteDraw.x, windSpriteDraw.y, 'wind', windSpriteType); //Not sure this is correct
+
         //rotWind
-        wind.setAngle(rotWind); //Not sure if this works or not
-      }
-      
-      function convertMatrixToCoordinates(geoPosX, geoPosY) {
-        const Position = Immutable.Record({ lat: undefined, long: undefined }, 'Position');
-        var realX = geoPosX * geometricScaler() + geometricMinX() + (geometricScaler() * 0.5);
-        var realY = geoPosY * geometricScaler() + geometricMinY() + (geometricScaler() * 0.5);
-
-        return new Position({ lat: realX, long: realY });
-      }
-
-      //Use to scale geometric back to x and y
-      //Currently 16 by 12 squares, each square is 50 pixels
-      function geometricScaler() {
-        return 100;
-      }
-
-      function geometricMinX() {
-        return -300;
-      }
-
-      function geometricMinY() {
-        return -200;
-      }
+        wind.setAngle( rotWind); //Not sure if this works or not
+      } // drawWindSprite
+    } // class
 
     window.customElements.define( ClientApp.is, ClientApp);
   </script>

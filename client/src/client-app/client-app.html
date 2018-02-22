@@ -40,68 +40,9 @@
         this.load.spritesheet('boat', 'assets/boat-spritesheet.png', { frameWidth: 128, frameHeight: 128, endFrame: 3 });
         this.load.spritesheet('wind', 'assets/wind-spritesheet.png', { frameWidth: windSpriteWidth, frameHeight: windSpriteHeight, endFrame: 3 });
         
-        const Boat = Immutable.Record({ position: undefined, direction: undefined, natSpeed: 1, originalPort: undefined, targetPort: undefined  }, 'Boat');
-        const Wind = Immutable.Record({ name: undefined, strength: 1.0, direction: 0 }, 'Wind');
-        const Port = Immutable.Record({ name: undefined, position: undefined }, 'Port');
-        const Position = Immutable.Record({ lat: undefined, long: undefined }, 'Position');
-        const GeoLocation = Immutable.Record({ row: undefined, collumn: undefined }, 'GeoLocation');
-        const WeatherStation = Immutable.Record({ name: undefined, geoLocation: undefined, strength: 1, direction: 0 }, 'WeatherStation');
-        //const GeoLocation = Immutable.Record({ row: undefined, collumn: undefined}, 'geoLocation');
-        
-
-        const DataModel = {
-          winds: Wind,
-          boats: Boat,
-          ports: Port,
-          position: Position,
-          weatherstations: WeatherStation
-        };
-
-        let storeReducer = function (state = Immutable.Map(), action) {
-          switch (action.type) {
-            case 'INCREASE_WINDS':
-              return state.update( 'winds', (winds) =>
-                winds.map( (wind) =>
-                  wind.update( 'strength', (strength) => 1.0 + strength)))
-            default:
-              return state
-          }
-        };
-
-        var initialState = Immutable.Map({
-          winds: Immutable.List([
-            new Wind({ name: 'Joran'}),
-            new Wind({ name: 'Bise' }),
-            new Wind({ name: 'Vaudaire' })
-          ]),
-          boats: Immutable.List([
-            new Boat({
-              position: new Position({ lat: 41.0, long: 6.0 }),
-              direction: 0,
-              originalPort: 'GVA', 
-              targetPort: 'LSNE' })
-          ]),
-          ports: Immutable.Map({
-            'LSNE': new Port({
-              name: 'Lausanne',
-              position: new Position({ lat: 41.1, long: 6.0 })
-            }),
-            'GVA': new Port({
-              name: 'Geneva',
-              position: new Position({ lat: 39.9, long: 6.0 })
-            }),
-          }),
-          weatherStations: Immutable.Map({
-            'WeatherStation1': new WeatherStation({
-              name: 'WeatherStation1',
-              position: new Position({ lat: 41.1, long: 6.0 })
-            })
-          })
-        });
-
-        let clientAppDatastore = new ClientAppDatastore();
-        game.data.set( 'store', clientAppDatastore.store);
-        game.data.set( 'schema', clientAppDatastore.schema);
+        game.data.set( 'store', Datastore); // declared within client-app-datastore.html
+        game.data.set( 'schema', Schema); // declared within client-app-datastore.html
+        console.dir( game);
 
         // game.load.setBaseURL('http://labs.phaser.io');
         game.load.image('background', 'assets/background.png');
@@ -119,7 +60,7 @@
         console.dir( store.getState());
 
         console.log( 'State of the store, after increasing strength of all winds:');
-        store.dispatch({ type: 'INCREASE_WINDS' });
+        store.dispatch( { type: 'INCREASE_WINDS' });
         console.dir( store.getState());
 
         //https://github.com/photonstorm/phaser/blob/0c895db8a064357f575fe4987a6e7af07fe14358/src/cameras/2d/Camera.js

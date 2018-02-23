@@ -121,10 +121,12 @@
       if (_calcSailType > 2) { 
         _calcSailType -= - 2;
       }
-
+      
+      //console.log(this.frame);
       // FIXME: does not work
-      // this.frame = ([ 1, 2, 1])[ _calcSailType];
-      this.setAngle( this.direction);
+      this.setFrame(([ 1, 2, 1])[ _calcSailType]);
+
+      this.angle = this.direction;
     }
   }
 </script>

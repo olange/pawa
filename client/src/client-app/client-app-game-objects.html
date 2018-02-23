@@ -4,7 +4,7 @@
   class Boat extends Phaser.GameObjects.Sprite {
     constructor( scene, name) {
       console.info( `Boat: constructor( scene, '${name}') called`);
-      super( scene, 0, 0, 'boat', 0);
+      super( scene, null, null, 'boat', 0);
 
       // Identifier of the boat, used to lookup its state in the datastore
       this.name = "" + name;
@@ -18,7 +18,7 @@
       this.setScale( 0.1667, 0.1667);
 
       // Add an event listener, to change tint on click
-      var boat = this;
+      let boat = this;
       this.setInteractive();
       this.on( 'pointerdown', function boatClicked() {
         boat.setAlpha( 0.25 + Math.random() * 0.75); });
@@ -54,21 +54,33 @@
       this.windDirection = data.windDirection;
     }
 
-    update( time, delta) {
+    update() {
       console.info( "Boat: update() called");
 
       // Fetch the state with the datastore
       this.fetchData();
 
       // Re-position the boat in scene coordinates
-      this.x = 50.0 * this.data.position.col;
-      this.y = 50.0 * this.data.position.row;
+      let targetX = 50.0 * this.data.position.col;
+      let targetY = 50.0 * this.data.position.row;
+      if ((this.x == null) ||( this.y == null)) {
+        // Reposition the sprite, if it was not set earlier
+        this.x = targetX;
+        this.y = targetY;
+      } else {
+        // TODO: Move it to the new position with a tween animation
+        this.x = targetX;
+        this.y = targetY;
+      }
 
       // Select correct sprite frame, depending on current
-      // boat direction and incoming wind direction 
-      var _boatDirQuadrant = 0;
-      var _calcSailType = 0;
-      var _sailType = 0;
+      // boat direction and incoming wind direction
+      //
+      // FIXME: correct the algorithm with the number of frames
+      // we currently have
+      let _boatDirQuadrant = 0;
+      let _calcSailType = 0;
+      let _sailType = 0;
 
       if (this.direction >= 315 || this.direction < 45) {
         //facing up
@@ -102,6 +114,7 @@
         _calcSailType -= - 2;
       }
 
+      // FIXME: does not work
       // this.frame = ([ 1, 2, 1])[ _calcSailType];
       this.angle = this.direction;
     }

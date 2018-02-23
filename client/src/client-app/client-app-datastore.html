@@ -71,6 +71,10 @@
           return state.updateIn( ['boats', action.boat], (boat) =>
               boat.update( 'position', (position) => action.position
               ))
+        case 'CHANGE_BOAT_DIRECTION':
+          return state.updateIn( ['boats', action.boat], (boat) =>
+              boat.update( 'direction', (direction) => action.direction
+              ))
         default:
           return state
       }

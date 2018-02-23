@@ -54,7 +54,7 @@
 
         // Transform Redux datastore state changes into Phaser events
         store.unsubscribe = store.subscribe( function handleStoreStateChange() {
-          console.info( "handleStoreStateChange(): an action was dispatched to the Redux data store")
+          console.info( "Store: handleStoreStateChange() emits `store-state-change` Phaser event")
           scene.events.emit( 'store-state-changed');
         });
 
@@ -75,11 +75,12 @@
       }
 
       update( time, delta) {
-        const UPDATE_FREQ = 10000; // 10000ms = 10s
+        const NEXT_TIME_INTERVAL = 10000; // 10000ms = 10s
         const scene = this;
-        const lastTime = scene.data.get( 'lastTime');
-        if ((lastTime === undefined) || (time - lastTime > UPDATE_FREQ)) {
-          scene.data.set( 'lastTime', time);
+        const nextTime = scene.data.get( 'nextTime');
+        if ((nextTime === undefined) || (time > nextTime)) {
+          console.info( 'Scene: update() is dispatching actions');
+          scene.data.set( 'nextTime', time + NEXT_TIME_INTERVAL);
 
           const store = scene.data.get( 'store');
           store.dispatch( { type: 'SHUFFLE_BOAT_DIRECTIONS' });
@@ -87,17 +88,15 @@
       }
 
       render() {
-        console.info( 'render() was called');
-
+        console.info( 'Scene: render() was called');
         const scene = this;
-        const store = scene.data.get( 'store');
-        console.dir( store.getState());
 
-        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 1, col: 0 }), 1, 90);
-        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 2, col: 0 }), 2, 45);
-        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 3, col: 0 }), 1, -45);
-        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 4, col: 0 }), 2, -90);
-        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 5, col: 0 }), 0, 0);
+        const store = scene.data.get( 'store');
+        const state = store.getState();
+
+        scene.children.each( function (child, state) {
+          child.update( state);
+        }, state);
       }
 
       constructor() {

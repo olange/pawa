@@ -12,7 +12,7 @@
         display: block;
       }
     </style>
-    <h2>Hello [[greeting]]!</h2>
+    <h2>Boats on [[name]]</h2>
   </template>
 
   <script>
@@ -24,9 +24,9 @@
       static get is() { return 'client-app'; }
       static get properties() {
         return {
-          greeting: {
+          name: {
             type: String,
-            value: 'Gus'
+            value: 'some lake'
           }
         };
       }

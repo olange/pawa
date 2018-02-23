@@ -1,0 +1,69 @@
+<link rel="import" href="../libs/phaser-js.html">
+
+<script>
+  class Boat extends Phaser.GameObjects.Sprite {
+    constructor( scene, x, y, windDirection = 0, direction = 0) {
+      console.info( "Boat: constructor() called");
+      super( scene, x, y, 'boat', 0);
+
+      // Incoming direction of the wind, relative to the boat, expressed
+      // as an angle, in degrees: 0 = wind comes from N (front),
+      // 90 = wind comes from E (tribord), 180 = wind come from
+      // south (behind), 270 = wind comes from W (babord)
+      this.windDirection = windDirection;
+      
+      // Direction the boat is heading towards, expressed as an angle,
+      // in degrees: 0 = N, 45 = NE, 90 = E, 180 = S, 270 = W
+      this.direction = direction;
+
+      // Add an event listener, to change tint on click
+      var boat = this;
+      this.setInteractive();
+      this.on( 'pointerdown', function boatClicked() {
+        boat.setAlpha( 0.25 + Math.random() * 0.75); });
+      console.dir( this);
+    }
+
+    update( time, delta) {
+      console.info( "Boat: update() called");
+      var _boatDirQuadrant = 0;
+      var _calcSailType = 0;
+      var _sailType = 0;
+
+      if (this.direction >= 315 || this.direction < 45) {
+        //facing up
+        _boatDirQuadrant = 0;
+      } else if (this.direction >= 45 && this.direction < 135) {
+        //facing right
+        _boatDirQuadrant = 1;
+      } else if (this.direction >= 135 &&  this.direction < 225) {
+        //facing down
+        _boatDirQuadrant = 2;
+      } else if (this.direction >=  225 && this.direction < 315) {
+        //facing left
+        _boatDirQuadrant = 3;
+      }
+
+      if (this.windDirection >= 315 || this.windDirection < 45) {
+        //If wind Direction is either north
+        _calcSailType = _boatDirQuadrant;
+      } else if (this.windDirection >=  45 && this.windDirection < 135) {
+        //If the wind direction is East
+        _calcSailType += 1;
+      } else if (this.windDirection >= 135 && this.windDirection < 225) {
+        //South
+        _calcSailType += 2;
+      } else if (this.windDirection >=  225 && this.windDirection < 315) {
+        //If the wind direction is west
+        _calcSailType += + 3;
+      }
+
+      if (_calcSailType > 2) { 
+        _calcSailType -= - 2;
+      }
+
+      this.frame = ([ 1, 2, 1, 0])[ _calcSailType];
+      this.angle = this.direction;
+    }
+  }
+</script>

@@ -53,57 +53,6 @@
       },
       //Create function called isLand?
 
-      //The parameters create new variables right?
-      // Answer: depends on whether the argument is of a primitive type (Int, Float, …)
-      // or an object. If it is primitive, yes. Otherwise no, you get new references…
-      // to the object; and if you mutate a property of the object, then you mutate
-      // the original object! Best practice: never update arguments; or create duplicates
-      // of objects, when the arguments are objects and you would need to return a
-      // updated version of the orignal object: `Object.assign( {}, arg, { … });`
-      drawBoatSprite( scene, pos, windDirection, rotBoat) {
-        var boatDirQuadrant = 0;
-        var sailTypeHolder = [1, 2, 1, 0];  //Look at paper I made showing how wind interacts with different sail directions
-        var calcSailType = 0;
-        var sailType = 0;
-
-        if (rotBoat >= 315 || rotBoat < 45) {
-          //facing up
-          boatDirQuadrant = 0;
-        } else if (rotBoat >=  45 && rotBoat < 135) {
-          //facing right
-          boatDirQuadrant = 1;
-        } else if (rotBoat >= 135 &&  rotBoat < 225) {
-          //facing down
-          boatDirQuadrant = 2;
-        } else if (rotBoat >=  225 && rotBoat < 315) {
-          //facing left
-          boatDirQuadrant = 3;
-        }
-
-        if (windDirection >= 315 || windDirection < 45) {
-          //If wind Direction is either north
-          calcSailType = boatDirQuadrant;
-        } else if (windDirection >=  45 && windDirection < 135) {
-          //If the wind direction is East
-          calcSailType = boatDirQuadrant + 1;
-        } else if (windDirection >= 135 && windDirection < 225) {
-          //South
-          calcSailType = boatDirQuadrant + 2;
-        } else if (windDirection >=  225 && windDirection < 315) {
-          //If the wind direction is west
-          calcSailType = boatDirQuadrant + 3;
-        }
-
-        if (calcSailType > 2) { 
-          calcSailType = calcSailType - 2;
-        }
-
-        const boatS = scene.add.sprite( pos.x, pos.y, 'boat', sailTypeHolder[ calcSailType]); //Not sure this is correct
-        boatS.setAngle( rotBoat);
-        boatS.setInteractive();
-        boatS.on( 'pointerdown', function boatClicked() { boatS.setTint( Math.random() * 16000000); });
-      }, // drawBoatSprite
-
       //If we are sending the wind object itself, change so it accepts that wind, and then changes the sprite it is associated with
       //Send wind coordiantes, then get the wind drawn in the geocordinates by a draw windsprite function
 

@@ -4,7 +4,9 @@
   class Boat extends Phaser.GameObjects.Sprite {
     constructor( scene, name) {
       console.info( `Boat: constructor( scene, '${name}') called`);
+
       super( scene, null, null, 'boat', 0);
+      this.active = false; // will be activated with first `update()`
 
       // Identifier of the boat, used to lookup its state in the datastore
       this.name = "" + name;
@@ -64,7 +66,8 @@
       let targetX = 50.0 * this.data.position.col;
       let targetY = 50.0 * this.data.position.row;
       if ((this.x == null) ||( this.y == null)) {
-        // Reposition the sprite, if it was not set earlier
+        // Activate and position the sprite, if it was not positioned
+        this.active = true;
         this.x = targetX;
         this.y = targetY;
       } else {

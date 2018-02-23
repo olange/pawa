@@ -2,33 +2,70 @@
 
 <script>
   class Boat extends Phaser.GameObjects.Sprite {
-    constructor( scene, x, y, windDirection = 0, direction = 0) {
-      console.info( "Boat: constructor() called");
-      super( scene, x, y, 'boat', 0);
+    constructor( scene, name) {
+      console.info( `Boat: constructor( scene, '${name}') called`);
+      super( scene, 0, 0, 'boat', 0);
 
-      //Rescales the boat from 600 pixels to 100
-      this.setScale(0.1667, 0.1667);
+      // Identifier of the boat, used to lookup its state in the datastore
+      this.name = "" + name;
 
-      // Incoming direction of the wind, relative to the boat, expressed
-      // as an angle, in degrees: 0 = wind comes from N (front),
-      // 90 = wind comes from E (tribord), 180 = wind come from
-      // south (behind), 270 = wind comes from W (babord)
-      this.windDirection = windDirection;
-      
-      // Direction the boat is heading towards, expressed as an angle,
-      // in degrees: 0 = N, 45 = NE, 90 = E, 180 = S, 270 = W
-      this.direction = direction;
+      // Properties that are synced from the datastore state
+      this.data = null;
+      this.direction = null;
+      this.windDirection = null;
+
+      // Rescales the boat from 600 pixels to 100
+      this.setScale( 0.1667, 0.1667);
 
       // Add an event listener, to change tint on click
       var boat = this;
       this.setInteractive();
       this.on( 'pointerdown', function boatClicked() {
         boat.setAlpha( 0.25 + Math.random() * 0.75); });
-      console.dir( this);
+
+      // Trigger initial synchronization of the Boat sprite state
+      // with the boat entity of the datastore it is bound to
+      this.update();
+    }
+
+    fetchData() {
+      // Fetch the state of the boat from the datastore, looking up
+      // the boat entities for the one matching the boat id
+      const store = this.scene.data.get( 'store');
+      const state = store.getState();
+      const dataStorePath = [ 'boats', this.name ];
+      const data = state.getIn( dataStorePath);
+
+      if (data === undefined) {
+        throw new Error( `Boat.constructor(): cannot bind to datastore; it is expected to contain a boat with given name '${name}'`);
+      }
+
+      // Data chunk describing the state of the boat (latest state)
+      this.data = data;
+
+      // Direction the boat is heading towards, expressed as an angle,
+      // in degrees: 0 = N, 45 = NE, 90 = E, 180 = S, 270 = W
+      this.direction = data.direction;
+
+      // Incoming direction of the wind, relative to the boat, expressed
+      // as an angle, in degrees: 0 = wind comes from N (front),
+      // 90 = wind comes from E (tribord), 180 = wind come from
+      // south (behind), 270 = wind comes from W (babord)
+      this.windDirection = data.windDirection;
     }
 
     update( time, delta) {
       console.info( "Boat: update() called");
+
+      // Fetch the state with the datastore
+      this.fetchData();
+
+      // Re-position the boat in scene coordinates
+      this.x = 50.0 * this.data.position.col;
+      this.y = 50.0 * this.data.position.row;
+
+      // Select correct sprite frame, depending on current
+      // boat direction and incoming wind direction 
       var _boatDirQuadrant = 0;
       var _calcSailType = 0;
       var _sailType = 0;
@@ -65,7 +102,7 @@
         _calcSailType -= - 2;
       }
 
-      this.frame = ([ 1, 2, 1, 0])[ _calcSailType];
+      // this.frame = ([ 1, 2, 1])[ _calcSailType];
       this.angle = this.direction;
     }
   }

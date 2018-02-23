@@ -68,13 +68,10 @@
         //Current Map size: 1600 x 1200
 
         // Add some boats to the scene
-        this.children.add( new Boat( scene, 250, 300, 0, 0));
-        this.children.add( new Boat( scene, 300, 300, 0, 45));
-        this.children.add( new Boat( scene, 350, 300, 0, 90));
-        this.children.add( new Boat( scene, 400, 300, 0, 135));
-        this.children.add( new Boat( scene, 450, 300, 0, 180));
-        this.children.add( new Boat( scene, 500, 300, 0, 225));
-        this.children.add( new Boat( scene, 550, 300, 0, 270));
+        this.children.add( new Boat( scene, 'BOAT1'));
+        this.children.add( new Boat( scene, 'BOAT2'));
+        this.children.add( new Boat( scene, 'BOAT3'));
+        this.children.add( new Boat( scene, 'BOAT4'));
       }
 
       update( time, delta) {

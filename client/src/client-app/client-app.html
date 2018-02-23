@@ -92,12 +92,14 @@
         console.info( 'Scene: render() was called');
         const scene = this;
 
-        const store = scene.data.get( 'store');
-        const state = store.getState();
+        // const store = scene.data.get( 'store');
+        // const state = store.getState();
 
-        scene.children.each( function (child, state) {
-          child.update( state);
-        }, state);
+        // Ask every game object of the scene to synchronize
+        // with the new state of the datastore
+        scene.children.each( function (child) {
+          child.update();
+        });
       }
 
       constructor() {

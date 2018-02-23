@@ -78,10 +78,8 @@
         this.setActive( true);
         this.x = targetX;
         this.y = targetY;
-      } else {
-        
-        //In theory should work
-        this.tweens.add({
+      } else {        
+        this.scene.tweens.add({
           targets: this,
            x: { value: targetX, duration: 3000 },
            y: { value: targetY, duration: 3000 }

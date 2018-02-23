@@ -8,10 +8,10 @@
       // For now, Sprite has no position and is inactive; it will
       // be activated and positionned with first `update()` call
       super( scene, null, null, 'boat', 0);
-      this.active = false;
+      this.setActive( false);
 
       // Identifier of the boat, used to lookup its state in the datastore
-      this.name = "" + name;
+      this.setName( "" + name);
 
       // Properties that are synced from the datastore state
       this.data = null;
@@ -72,7 +72,7 @@
       let targetY = 50.0 * state.position.row;
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned
-        this.active = true;
+        this.setActive( true);
         this.x = targetX;
         this.y = targetY;
       } else {
@@ -124,7 +124,7 @@
 
       // FIXME: does not work
       // this.frame = ([ 1, 2, 1])[ _calcSailType];
-      this.angle = this.direction;
+      this.setAngle( this.direction);
     }
   }
 </script>

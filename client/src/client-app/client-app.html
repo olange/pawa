@@ -44,7 +44,7 @@
 
         console.dir( scene);
       }
-      
+
       create() {
         // Note: Phaser sets `this` to the Phaser Scene instance before calling this function
         const scene = this;
@@ -86,12 +86,12 @@
         const store = scene.data.get( 'store');
         console.dir( store.getState());
 
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 0, column: 0 }), 0, 0);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 1, column: 0 }), 1, 90);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 2, column: 0 }), 2, 45);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 3, column: 0 }), 1, -45);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 4, column: 0 }), 2, -90);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 5, column: 0 }), 0, 0);
+        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 0, col: 0 }), 0, 0);
+        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 1, col: 0 }), 1, 90);
+        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 2, col: 0 }), 2, 45);
+        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 3, col: 0 }), 1, -45);
+        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 4, col: 0 }), 2, -90);
+        Renderer.drawWindSprite( scene, new Schema.MeshCoord({ row: 5, col: 0 }), 0, 0);
         Renderer.drawBoatSprite( scene, new Schema.Position({ x: 800, y: 500 }), 0, 180);
       }
 

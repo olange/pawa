@@ -32,10 +32,10 @@
         });
       }, // geometricReference
 
-      convertMatrixToCoordinates( geoloc) {
-        const realX = (0.5 + geoloc.column) * Renderer.geometricScaler() + Renderer.geometricMinX();
-        const realY = (0.5 + geoloc.row) * Renderer.geometricScaler() + Renderer.geometricMinY();
-        return new Schema.Position({ x: realX, y: realY });
+      convertMatrixToCoordinates( meshCoord) {
+        const sceneX = (0.5 + meshCoord.col) * Renderer.geometricScaler() + Renderer.geometricMinX();
+        const sceneY = (0.5 + meshCoord.row) * Renderer.geometricScaler() + Renderer.geometricMinY();
+        return new Schema.Position({ x: sceneX, y: sceneY });
       },
 
       //Use to scale geometric back to x and y
@@ -107,7 +107,7 @@
       //If we are sending the wind object itself, change so it accepts that wind, and then changes the sprite it is associated with
       //Send wind coordiantes, then get the wind drawn in the geocordinates by a draw windsprite function
 
-      drawWindSprite( scene, geoPos, windStrength, rotWind) {
+      drawWindSprite( scene, meshCoord, windStrength, rotWind) {
         var windSpriteType = 0;
         if (windStrength == 1) {
           windSpriteType = 1;
@@ -120,7 +120,7 @@
         //This only works assuming position is a matrix like geolocation, otherwise add geolocation value
         //(phaserGame.windSpriteWidth / 2)
         //  + (phaserGame.windSpriteHeight / 2)
-        const windSpriteDraw = Renderer.convertMatrixToCoordinates( geoPos);
+        const windSpriteDraw = Renderer.convertMatrixToCoordinates( meshCoord);
 
         //Does this really get a point? No it gets the top corner of a point
 

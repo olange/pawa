@@ -61,14 +61,16 @@
 
     const actionHandler = function (state = Immutable.Map(), action) {
       switch (action.type) {
-        case 'SHUFFLE_BOAT_DIRECTIONS':
+        case 'SHUFFLE_BOATS_DIRECTION':
           return state.update( 'boats', (boats) =>
             boats.map((boat) =>
               boat.update( 'direction', function (direction) { 
                 return direction = Math.floor(Math.random() * 359);
-              }
-                
-                )))
+              })))
+        case 'CHANGE_BOAT_POSITION':
+          return state.updateIn( ['boats', action.boat], (boat) =>
+              boat.update( 'position', (position) => action.position
+              ))
         default:
           return state
       }

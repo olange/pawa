@@ -83,7 +83,8 @@
           scene.data.set( 'nextTime', time + NEXT_TIME_INTERVAL);
 
           const store = scene.data.get( 'store');
-          store.dispatch( { type: 'SHUFFLE_BOAT_DIRECTIONS' });
+          store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', position: new Schema.MeshCoord({ row: 2, col: 3 })});
         }
       }
 

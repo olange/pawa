@@ -23,11 +23,6 @@
           name: undefined,
           position: undefined
         }, 'Port'),
-      Position:
-        Immutable.Record({
-          x: undefined,
-          y: undefined
-        }, 'Position'),
       WeatherStation:
         Immutable.Record({
           name: undefined,
@@ -83,7 +78,7 @@
       ]),
       boats: Immutable.List([
         new Schema.Boat({
-          position: new Schema.Position({ x: 41.0, y: 6.0 }),
+          position: new Schema.MeshCoord({ row: 5, col: 6 }),
           direction: 0,
           originalPort: 'GVA', 
           targetPort: 'LSNE' })
@@ -91,17 +86,29 @@
       ports: Immutable.Map({
         'LSNE': new Schema.Port({
           name: 'Lausanne',
-          position: new Schema.Position({ x: 41.1, y: 6.0 })
+          position: new Schema.MeshCoord({ row: 0, col: 18 })
         }),
         'GVA': new Schema.Port({
           name: 'Geneva',
-          position: new Schema.Position({ x: 39.9, y: 6.0 })
+          position: new Schema.MeshCoord({ row: 21, col: 0 })
         }),
+        'NYN': new Schema.Port({
+          name: 'Nyon',
+          position: new Schema.MeshCoord({ row: 9, col: 4 })
+        }),
+        'TLB': new Schema.Port({
+          name: 'Thonons-Les-Bains',
+          position: new Schema.MeshCoord({ row: 9, col: 13 })
+        }),
+        'MTX': new Schema.Port({
+          name: 'Montreux',
+          position: new Schema.MeshCoord({ row: 6, col: 31 })
+        })
       }),
       weatherStations: Immutable.Map({
         'WeatherStation1': new Schema.WeatherStation({
           name: 'WeatherStation1',
-          position: new Schema.Position({ x: 41.1, y: 6.0 })
+          position: new Schema.MeshCoord({ row: 2, col: 9 })
         })
       }),
       lakeMesh: new Schema.Mesh({

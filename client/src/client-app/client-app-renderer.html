@@ -3,6 +3,7 @@
 <script>
   const Renderer = (function () {
     return {
+
       geometricReference( position) {
         var run = true;
 
@@ -31,30 +32,29 @@
           column: c
         });
       }, // geometricReference
-
-      convertMatrixToCoordinates( meshCoord) {
-        const sceneX = (0.5 + meshCoord.col) * Renderer.geometricScaler() + Renderer.geometricMinX();
-        const sceneY = (0.5 + meshCoord.row) * Renderer.geometricScaler() + Renderer.geometricMinY();
-        return new Schema.Position({ x: sceneX, y: sceneY });
+      
+      convertMeshCoordToCoordinates( meshCoord) {
+        const sceneX = (0.5 + meshCoord.col) * Renderer.meshCoordScaler() + Renderer.meshCoordMinX();
+        const sceneY = (0.5 + meshCoord.row) * Renderer.meshCoordScaler() + Renderer.meshCoordMinY();
+        return new Phaser.Geom.Point( sceneX, sceneY );
       },
 
-      //Use to scale geometric back to x and y
+      //Use to scale mesh back to x and y
       //Currently 16 by 12 squares, each square is 50 pixels
-      geometricScaler() {
+      meshCoordScaler() {
         return 50;
       },
 
-      geometricMinX() {
+      meshCoordMinX() {
         return -300;
       },
 
-      geometricMinY() {
+      meshCoordMinY() {
         return -200;
       },
-      //Create function called isLand?
 
       //If we are sending the wind object itself, change so it accepts that wind, and then changes the sprite it is associated with
-      //Send wind coordiantes, then get the wind drawn in the geocordinates by a draw windsprite function
+      //Send wind coordiantes, then get the wind drawn in the meshcordinates by a draw windsprite function
 
       drawWindSprite( scene, meshCoord, windStrength, rotWind) {
         var windSpriteType = 0;
@@ -65,20 +65,14 @@
         } else if (windStrength == 3) {
           windSpriteType = 3;
         }
-
-        //This only works assuming position is a matrix like geolocation, otherwise add geolocation value
-        //(phaserGame.windSpriteWidth / 2)
-        //  + (phaserGame.windSpriteHeight / 2)
-        const windSpriteDraw = Renderer.convertMatrixToCoordinates( meshCoord);
-
-        //Does this really get a point? No it gets the top corner of a point
+        
+        //This gets the middle of the cell
+        const windSpriteDraw = Renderer.convertMeshCoordToCoordinates( meshCoord);
 
         //var test = phaserGame.windSpriteWidth;
 
-        const wind = scene.add.sprite( windSpriteDraw.x, windSpriteDraw.y, 'wind', windSpriteType); //Not sure this is correct
-
-        //rotWind
-        wind.setAngle( rotWind); //Not sure if this works or not
+        const wind = scene.add.sprite( windSpriteDraw.x, windSpriteDraw.y, 'wind', windSpriteType); 
+        wind.angle = rotWind;
       } // drawWindSprite      
     };
   })();

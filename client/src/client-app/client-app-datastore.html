@@ -6,7 +6,6 @@
     return {
       Wind:
         Immutable.Record({
-          name: undefined,
           strength: 1.0,
           direction: 0
         }, 'Wind'),
@@ -73,9 +72,7 @@
 
     const initialState = Immutable.Map({
       winds: Immutable.List([
-        new Schema.Wind({ name: 'Joran'}),
-        new Schema.Wind({ name: 'Bise' }),
-        new Schema.Wind({ name: 'Vaudaire' })
+        //new Schema.Wind({ })
       ]),
       boats: Immutable.Map({
         'BOAT1': new Schema.Boat({

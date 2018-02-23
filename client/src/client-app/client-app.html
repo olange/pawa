@@ -65,13 +65,12 @@
         Renderer.drawBoatSprite( scene, new Schema.Position({ x: 800, y: 500 }), 0, 180);
       }
 
-      update() {
+      update( time, delta) {
         const UPDATE_FREQ = 10000; // 10000ms = 10s
         const scene = this;
-        const now = scene.time.now;
         const lastTime = scene.data.get( 'lastTime');
-        if ((lastTime === undefined) || (now - lastTime > UPDATE_FREQ)) {
-          scene.data.set( 'lastTime', now);
+        if ((lastTime === undefined) || (time - lastTime > UPDATE_FREQ)) {
+          scene.data.set( 'lastTime', time);
           const store = scene.data.get( 'store');
           store.dispatch( { type: 'INCREASE_WINDS' });
         }

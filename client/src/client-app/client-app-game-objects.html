@@ -5,8 +5,10 @@
     constructor( scene, name) {
       console.info( `Boat: constructor( scene, '${name}') called`);
 
+      // For now, Sprite has no position and is inactive; it will
+      // be activated and positionned with first `update()` call
       super( scene, null, null, 'boat', 0);
-      this.active = false; // will be activated with first `update()`
+      this.active = false;
 
       // Identifier of the boat, used to lookup its state in the datastore
       this.name = "" + name;
@@ -30,41 +32,44 @@
       this.update();
     }
 
-    fetchData() {
+    syncData() {
       // Fetch the state of the boat from the datastore, looking up
       // the boat entities for the one matching the boat id
       const store = this.scene.data.get( 'store');
       const state = store.getState();
       const dataStorePath = [ 'boats', this.name ];
-      const data = state.getIn( dataStorePath);
+      const boatState = state.getIn( dataStorePath);
 
-      if (data === undefined) {
+      if (boatState === undefined) {
         throw new Error( `Boat.constructor(): cannot bind to datastore; it is expected to contain a boat with given name '${name}'`);
       }
 
-      // Data chunk describing the state of the boat (latest state)
-      this.data = data;
+      // Data chunk describing the state of the boat (latest state);
+      // can be retrieved with `this.getData( 'state')` anytime
+      this.setData( 'state', boatState);
 
       // Direction the boat is heading towards, expressed as an angle,
       // in degrees: 0 = N, 45 = NE, 90 = E, 180 = S, 270 = W
-      this.direction = data.direction;
+      this.direction = boatState.direction;
 
       // Incoming direction of the wind, relative to the boat, expressed
       // as an angle, in degrees: 0 = wind comes from N (front),
       // 90 = wind comes from E (tribord), 180 = wind come from
       // south (behind), 270 = wind comes from W (babord)
-      this.windDirection = data.windDirection;
+      this.windDirection = boatState.windDirection;
+
+      return boatState;
     }
 
     update() {
       console.info( "Boat: update() called");
 
       // Fetch the state with the datastore
-      this.fetchData();
+      const state = this.syncData();
 
       // Re-position the boat in scene coordinates
-      let targetX = 50.0 * this.data.position.col;
-      let targetY = 50.0 * this.data.position.row;
+      let targetX = 50.0 * state.position.col;
+      let targetY = 50.0 * state.position.row;
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned
         this.active = true;

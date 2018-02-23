@@ -6,6 +6,9 @@
       console.info( "Boat: constructor() called");
       super( scene, x, y, 'boat', 0);
 
+      //Rescales the boat from 600 pixels to 100
+      this.setScale(0.1667, 0.1667);
+
       // Incoming direction of the wind, relative to the boat, expressed
       // as an angle, in degrees: 0 = wind comes from N (front),
       // 90 = wind comes from E (tribord), 180 = wind come from

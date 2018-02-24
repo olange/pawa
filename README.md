@@ -2,6 +2,8 @@
 
 Web animation of boats riding the winds of lake Leman, using the [Phaser.io](https://phaser.io) library, [Polymer Elements](https://elements.polymer-project.org) and the [Neo4j graph database](https://neo4j.com).
 
+<img height="200" src="docs/images/boats-and-winds-screenshot.png">
+
 ## Setup
 
 See the [contributing guide](docs/CONTRIBUTING.md) to setup your development environment. In a nutshell, here's how to download the sources and fetch the client app dependencies:

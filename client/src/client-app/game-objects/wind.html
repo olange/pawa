@@ -10,8 +10,6 @@
       super( scene, null, null, 'wind', 0);
       this.setActive( false);
       
-      console.log("row: " + row);
-      console.log("col: " + col);
       // Identifier of the wind, used to lookup its state in the datastore
 
       // Properties that are synced from the datastore state
@@ -28,7 +26,7 @@
     syncData() {
       // Fetch the state of the wind from the datastore, looking up
       // the wind entities for the one matching the wind name
-      console.log(this.col);
+      
       const store = this.scene.data.get( 'store');
       const windState = store.getState().get( 'windMesh').tiles[this.row][this.col];
 
@@ -51,7 +49,7 @@
     }
 
     update() {
-      console.info( "Wind: update() called");
+      //console.info( "Wind: update() called");
       // Fetch the state with the datastore
       const windState = this.syncData();
 

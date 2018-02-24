@@ -69,25 +69,36 @@
 
     update() {
       console.info( "Boat: update() called");
-
       // Fetch the state with the datastore
       const boatState = this.syncData();
       
       // Re-position the boat in scene coordinates
-      let target = RenderingCoord.meshCoordToScene( boatState.position);
+
+      const store = this.scene.data.get( 'store');
+      //let target = RenderingCoord.meshCoordToScene( boatState.position);
+      
+      console.log(boatState);
+      console.log(this.x);
+      console.log(this.y);
 
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned
+        let target = RenderingCoord.meshCoordToScene( boatState.position);
         this.setActive( true);
         this.x = target.x;
         this.y = target.y;
-      } else {        
+      } else if(this.scene.tweens.getTweensOf(this).length == 0){
+        let target = RenderingCoord.meshCoordToScene( store.getState().getIn( [ 'ports', boatState.targetPort ]).position);
+        //let target = RenderingCoord.meshCoordToScene( boatState.position);
+
         this.scene.tweens.add({
           targets: this,
-           x: { value: target.x, duration: 3000 },
-           y: { value: target.y, duration: 3000 }
+           x: { value: target.x, duration: 50 * Math.abs((target.x - this.x)) },
+           y: { value: target.y, duration: 50 * Math.abs((target.y - this.y)) }
         });
-      }
+
+        //console.dir(this.scene.tweens.getTweensOf(this).length);
+      } 
 
       // Select correct sprite frame, depending on current
       // boat direction and incoming wind direction

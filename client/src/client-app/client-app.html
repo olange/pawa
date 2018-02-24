@@ -78,11 +78,27 @@
         // scene.add.image( 400, 300, 'landmark');
 
         // Add boats to the scene …
-        scene.children.add( new Boat( scene, 'BOAT1'));
+
+        var boats = store.getState().get( 'boats');
+        
+        for(var z = 0; z < boats.count(); z++ ) {
+          
+          var boatName = 'BOAT'+(z+1).toString();
+
+          var boat = store.getState().getIn( [ 'boats', boatName ]);
+
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: boatName, 
+                            position: store.getState().getIn( [ 'ports', boat.originalPort ]).position});
+          
+          scene.children.add( new Boat( scene, boatName));
+
+        }
+        
+        /*scene.children.add( new Boat( scene, 'BOAT1'));
         scene.children.add( new Boat( scene, 'BOAT2'));
         scene.children.add( new Boat( scene, 'BOAT3'));
         scene.children.add( new Boat( scene, 'BOAT4'));
-        scene.children.add( new Boat( scene, 'BOAT5'));
+        scene.children.add( new Boat( scene, 'BOAT5'));*/
 
         // … and ports
         scene.children.add( new Port( scene, 'LSN'));
@@ -110,10 +126,10 @@
           this.nextTime = time + NEXT_TIME_INTERVAL;
 
           const store = scene.data.get( 'store');
-          store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
+          //store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
           store.dispatch( { type: 'CHANGE_WINDS_DIRECTION' });
-          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', 
-                            position: new Schema.MeshCoord({ row: 2, col: 18 })});
+          /*store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', 
+                            position: new Schema.MeshCoord({ row: 2, col: 18 })});*/
         }
       }
 

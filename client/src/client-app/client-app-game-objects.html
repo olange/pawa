@@ -22,11 +22,14 @@
       // Rescales the boat from 600 pixels to 100
       this.setScale( 0.1667, 0.1667);
 
+      // Defines a tint
+      this.setTint( Math.random() * 16000000);
+
       // Add an event listener, to change tint on click
       let boat = this;
       this.setInteractive();
       this.on( 'pointerdown', function boatClicked() {
-        boat.setAlpha( 0.25 + Math.random() * 0.75); });
+        boat.setTint( Math.random() * 16000000); });
 
       // Trigger initial synchronization of the Boat sprite state
       // with the boat entity of the datastore it is bound to

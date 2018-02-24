@@ -91,8 +91,14 @@
         scene.children.add( new Port( scene, 'TLB'));
         scene.children.add( new Port( scene, 'MTX'));
 
-        //TestWithWind
-        scene.children.add( new Wind( scene, 1, 1));
+        //Adds the wind Matrix
+        var windMesh = store.getState().get( 'windMesh');
+        for(var h = 0; h < windMesh.height; h++ ) {
+          for(var w = 0; w < windMesh.width; w++ ) {
+            scene.children.add( new Wind( scene, h, w));
+          }
+        }
+        
       }
 
       update( time, delta) {
@@ -105,6 +111,7 @@
 
           const store = scene.data.get( 'store');
           store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
+          store.dispatch( { type: 'CHANGE_WINDS_DIRECTION' });
           store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', 
                             position: new Schema.MeshCoord({ row: 2, col: 18 })});
         }

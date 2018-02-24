@@ -36,6 +36,10 @@
           return state.updateIn( ['boats', action.boat], (boat) =>
               boat.update( 'direction', (direction) => action.direction
               ))
+        case 'CHANGE_WINDS_DIRECTION':
+          return state.update( 'windMesh', (windMesh) =>
+              windMesh.update( 'tiles', (tiles) => windFlowField( Math.random())
+              ))
         default:
           return state
       }

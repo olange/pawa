@@ -64,16 +64,11 @@
         this.x = target.x;
         this.y = target.y;
 
-        var windSpriteType = 0;
-        if (this.strength == 1) {
-          windSpriteType = 1;
-        } else if (this.strength == 2) {
-          windSpriteType = 2;
-        } else if (this.strength == 3) {
-          windSpriteType = 3;
-        }
-
-        this.setFrame(windSpriteType); 
+        this.setFrame(this.strength); 
+        this.angle = this.direction;
+      } else {
+        
+        this.setFrame(this.strength); 
         this.angle = this.direction;
       }
 

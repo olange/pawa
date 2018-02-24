@@ -29,7 +29,10 @@
       let boat = this;
       this.setInteractive();
       this.on( 'pointerdown', function boatClicked() {
-        boat.setTint( Math.random() * 16000000); });
+        boat.scene.data.get( 'store').dispatch({
+          type: 'CHANGE_BOAT_DIRECTION', boat: boat.name,
+          direction: Math.random() * 360.0 });
+      });
 
       // Trigger initial synchronization of the Boat sprite state
       // with the boat entity of the datastore it is bound to

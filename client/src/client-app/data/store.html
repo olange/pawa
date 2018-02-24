@@ -1,5 +1,6 @@
 <link rel="import" href="../../libs/immutable-js.html">
 <link rel="import" href="../../libs/redux-js.html">
+<link rel="import" href="../../libs/perlin.html">
 <link rel="import" href="schema.html">
 
 <script>
@@ -19,7 +20,7 @@
     // effectively returning the value; variables that would be created
     // within the scope of the anonymous function would be kept local.
 
-    const actionHandler = function (state = Immutable.Map(), action) {
+    const actionHandler = function actionHandler( state = Immutable.Map(), action) {
       switch (action.type) {
         case 'SHUFFLE_BOATS_DIRECTION':
           return state.update( 'boats', (boats) =>
@@ -38,7 +39,32 @@
         default:
           return state
       }
-    }
+    };
+
+    const windFlowField = function windFlowField( ts) {
+      // Uses the Noise module, globally declared within imported libs/perlin.js
+      const MESH_WIDTH = 32;
+      const MESH_HEIGHT = 22;
+
+      if (ts === undefined)
+        ts = Math.random(); // Time seed for Perlin Noise
+      Noise.seed( ts);
+
+      // Parameters of the noise map can (and probably will need to) be adjusted:
+      // * increments within the noise map = currently col|row / 10.0 (might be smaller or bigger increments);
+      // * magnitude: currently 360.0, can be adjusted to whatever;
+      // * use of absolute value, but we might want to keep negative values.
+      let data = [];
+      for (let row = 0; row < MESH_HEIGHT; row++) {
+        data[ row] = [];
+        for (let col = 0; col < MESH_WIDTH; col++) {
+          var value = Math.abs( Noise.perlin2( col / 10.0, row / 10.0));
+          data[ row][ col] = Math.ceil( value * 360);
+        }
+      }
+      console.dir( data);
+      return data;
+    };
 
     const initialState = Immutable.Map({
       boats: Immutable.Map({
@@ -134,8 +160,13 @@
         , [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
         , [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
         ]
+      }),
+      windMesh: new Schema.Mesh({
+        width: 32,
+        height: 22,
+        tiles: windFlowField( Math.random())
       })
-    });
+    }); // initialState
 
     return {
       initialState: initialState,

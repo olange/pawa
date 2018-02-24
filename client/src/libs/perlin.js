@@ -18,7 +18,7 @@
 "use strict";
 
 (function(global){
-  var module = global.noise = {};
+  var module = global.Noise = {};
 
   function Grad(x, y, z) {
     this.x = x; this.y = y; this.z = z;

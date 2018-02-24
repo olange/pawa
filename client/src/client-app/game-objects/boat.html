@@ -44,9 +44,7 @@
       // Fetch the state of the boat from the datastore, looking up
       // the boat entities for the one matching the boat name
       const store = this.scene.data.get( 'store');
-      const state = store.getState();
-      const dataStorePath = [ 'boats', this.name ];
-      const boatState = state.getIn( dataStorePath);
+      const boatState = store.getState().getIn( [ 'boats', this.name ]);
 
       if (boatState === undefined) {
         throw new Error( `Boat.constructor(): cannot bind to datastore; it is expected to contain a boat with given name '${name}'`);
@@ -73,24 +71,21 @@
       console.info( "Boat: update() called");
 
       // Fetch the state with the datastore
-      const state = this.syncData();
+      const boatState = this.syncData();
       
       // Re-position the boat in scene coordinates
-      let targetX = RenderingCoord.meshCoordScaler() * (state.position.col - 1.5)
-                    + RenderingCoord.meshCoordMinX();
-      let targetY = RenderingCoord.meshCoordScaler() * (state.position.row - 1.5)
-                    + RenderingCoord.meshCoordMinY();
+      let target = RenderingCoord.meshCoordToScene( boatState.position);
 
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned
         this.setActive( true);
-        this.x = targetX;
-        this.y = targetY;
+        this.x = target.x;
+        this.y = target.y;
       } else {        
         this.scene.tweens.add({
           targets: this,
-           x: { value: targetX, duration: 3000 },
-           y: { value: targetY, duration: 3000 }
+           x: { value: target.x, duration: 3000 },
+           y: { value: target.y, duration: 3000 }
         });
       }
 

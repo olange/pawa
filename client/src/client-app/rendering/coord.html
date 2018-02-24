@@ -34,10 +34,10 @@
         });
       }, // geometricReference
       
-      convertMeshCoordToCoordinates( meshCoord) {
-        const sceneX = (0.5 + meshCoord.col) * RenderingCoord.meshCoordScaler()
+      meshCoordToScene( meshCoord) {
+        const sceneX = (-1.5 + meshCoord.col) * RenderingCoord.meshCoordScaler()
           + RenderingCoord.meshCoordMinX();
-        const sceneY = (0.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
+        const sceneY = (-1.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
           + RenderingCoord.meshCoordMinY();
         return new Phaser.Geom.Point( sceneX, sceneY);
       },
@@ -70,7 +70,7 @@
         }
         
         //This gets the middle of the cell
-        const windSpriteDraw = RenderingCoord.convertMeshCoordToCoordinates( meshCoord);
+        const windSpriteDraw = RenderingCoord.meshCoordToScene( meshCoord);
 
         //var test = phaserGame.windSpriteWidth;
 

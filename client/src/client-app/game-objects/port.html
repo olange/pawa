@@ -46,22 +46,19 @@
       const portState = this.syncData();
       
       // Target position of the port in the scene
-      let targetX = RenderingCoord.meshCoordScaler() * (portState.position.col - 1.5)
-                    + RenderingCoord.meshCoordMinX();
-      let targetY = RenderingCoord.meshCoordScaler() * (portState.position.row - 1.5)
-                    + RenderingCoord.meshCoordMinY();
+      let target = RenderingCoord.meshCoordToScene( portState.position);
 
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned
         this.setActive( true);
-        this.x = targetX;
-        this.y = targetY;
+        this.x = target.x;
+        this.y = target.y;
       } else {
         // In case some groundbreaking force would move the port :)
         this.scene.tweens.add({
           targets: this,
-           x: { value: targetX, duration: 3000 },
-           y: { value: targetY, duration: 3000 }
+           x: { value: target.x, duration: 3000 },
+           y: { value: target.y, duration: 3000 }
         });
       }
       return true;

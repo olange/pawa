@@ -67,14 +67,13 @@
 
     update() {
       console.info( "Boat: update() called");
-      const meshCoordScaler = Renderer.meshCoordScaler();
 
       // Fetch the state with the datastore
       const state = this.syncData();
       
       // Re-position the boat in scene coordinates
-      let targetX = meshCoordScaler * (state.position.col + 0.5);
-      let targetY = meshCoordScaler * (state.position.row + 0.5);
+      let targetX = Renderer.meshCoordScaler() * (state.position.col + 0.5) + Renderer.meshCoordMinX();
+      let targetY = Renderer.meshCoordScaler() * (state.position.row + 0.5) + Renderer.meshCoordMinY();
 
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned

@@ -77,14 +77,14 @@
       update( time, delta) {
         const NEXT_TIME_INTERVAL = 10000; // 10000ms = 10s
         const scene = this;
-        const nextTime = scene.data.get( 'nextTime');
+        const nextTime = this.nextTime;
         if ((nextTime === undefined) || (time > nextTime)) {
           console.info( 'Scene: update() is dispatching actions');
-          scene.data.set( 'nextTime', time + NEXT_TIME_INTERVAL);
+          this.nextTime = time + NEXT_TIME_INTERVAL;
 
           const store = scene.data.get( 'store');
           store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
-          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', position: new Schema.MeshCoord({ row: 2, col: 3 })});
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', position: new Schema.MeshCoord({ row: 4, col: 16 })});
           store.dispatch( { type: 'CHANGE_BOAT_DIRECTION', boat: 'BOAT2', direction: 55 });
         }
       }

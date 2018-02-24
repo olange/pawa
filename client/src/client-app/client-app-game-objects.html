@@ -72,8 +72,8 @@
       const state = this.syncData();
       
       // Re-position the boat in scene coordinates
-      let targetX = Renderer.meshCoordScaler() * (state.position.col + 0.5) + Renderer.meshCoordMinX();
-      let targetY = Renderer.meshCoordScaler() * (state.position.row + 0.5) + Renderer.meshCoordMinY();
+      let targetX = Renderer.meshCoordScaler() * (state.position.col - 0.5) + Renderer.meshCoordMinX();
+      let targetY = Renderer.meshCoordScaler() * (state.position.row - 0.5) + Renderer.meshCoordMinY();
 
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned

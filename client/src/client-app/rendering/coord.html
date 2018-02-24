@@ -1,9 +1,9 @@
-<link rel="import" href="client-app-datastore.html">
+<link rel="import" href="../data/schema.html">
 
 <script>
-  const Renderer = (function () {
+  "use strict";
+  const RenderingCoord = (function () {
     return {
-
       //Is currently not called anywhere
       geometricReference( position) {
         var run = true;
@@ -28,16 +28,18 @@
         }
 
         //returns a record with the row and collumn its in
-        return new Schema.GeoLocation({
+        return new Schema.MeshCoord({
           row: r,
-          column: c
+          col: c
         });
       }, // geometricReference
       
       convertMeshCoordToCoordinates( meshCoord) {
-        const sceneX = (0.5 + meshCoord.col) * Renderer.meshCoordScaler() + Renderer.meshCoordMinX();
-        const sceneY = (0.5 + meshCoord.row) * Renderer.meshCoordScaler() + Renderer.meshCoordMinY();
-        return new Phaser.Geom.Point( sceneX, sceneY );
+        const sceneX = (0.5 + meshCoord.col) * RenderingCoord.meshCoordScaler()
+          + RenderingCoord.meshCoordMinX();
+        const sceneY = (0.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
+          + RenderingCoord.meshCoordMinY();
+        return new Phaser.Geom.Point( sceneX, sceneY);
       },
 
       //Use to scale mesh back to x and y
@@ -68,7 +70,7 @@
         }
         
         //This gets the middle of the cell
-        const windSpriteDraw = Renderer.convertMeshCoordToCoordinates( meshCoord);
+        const windSpriteDraw = RenderingCoord.convertMeshCoordToCoordinates( meshCoord);
 
         //var test = phaserGame.windSpriteWidth;
 

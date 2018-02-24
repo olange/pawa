@@ -1,50 +1,10 @@
-<link rel="import" href="../libs/immutable-js.html">
-<link rel="import" href="../libs/redux-js.html">
+<link rel="import" href="../../libs/immutable-js.html">
+<link rel="import" href="../../libs/redux-js.html">
+<link rel="import" href="schema.html">
 
 <script>
-  const Schema = (function () {
-    return {
-      Wind:
-        Immutable.Record({
-          strength: 1.0,
-          direction: 0
-        }, 'Wind'),
-      Boat:
-        Immutable.Record({
-          position: undefined,
-          direction: undefined,
-          windDirection: undefined,
-          natSpeed: 1,
-          originalPort: undefined,
-          targetPort: undefined
-        }, 'Boat'),
-      Port:
-        Immutable.Record({
-          name: undefined,
-          position: undefined
-        }, 'Port'),
-      WeatherStation:
-        Immutable.Record({
-          name: undefined,
-          position: undefined,
-          strength: 1.0,
-          direction: 0
-        }, 'WeatherStation'),
-      MeshCoord:
-        Immutable.Record({
-          row: undefined,
-          col: undefined
-        }, 'MeshCoord'),
-      Mesh:
-        Immutable.Record({
-          width: undefined,
-          height: undefined,
-          tiles: undefined
-        })
-    }
-  })();
-
-  var Datastore = (function () {
+  "use strict";
+  var Store = (function () {
     // Sidenote:
     //
     // The above anonymous function declaration comes from a classical
@@ -177,6 +137,9 @@
       })
     });
 
-    return Redux.createStore( actionHandler, initialState);
+    return {
+      initialState: initialState,
+      actionHandler: actionHandler
+    };
   })();
 </script>

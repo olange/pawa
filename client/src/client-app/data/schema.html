@@ -1,0 +1,46 @@
+<link rel="import" href="../../libs/immutable-js.html">
+
+<script>
+  "use strict";
+  const Schema = (function () {
+    return {
+      Wind:
+        Immutable.Record({
+          strength: 1.0,
+          direction: 0
+        }, 'Wind'),
+      Boat:
+        Immutable.Record({
+          position: undefined,
+          direction: undefined,
+          windDirection: undefined,
+          natSpeed: 1,
+          originalPort: undefined,
+          targetPort: undefined
+        }, 'Boat'),
+      Port:
+        Immutable.Record({
+          name: undefined,
+          position: undefined
+        }, 'Port'),
+      WeatherStation:
+        Immutable.Record({
+          name: undefined,
+          position: undefined,
+          strength: 1.0,
+          direction: 0
+        }, 'WeatherStation'),
+      MeshCoord:
+        Immutable.Record({
+          row: undefined,
+          col: undefined
+        }, 'MeshCoord'),
+      Mesh:
+        Immutable.Record({
+          width: undefined,
+          height: undefined,
+          tiles: undefined
+        })
+    }
+  })();
+</script>

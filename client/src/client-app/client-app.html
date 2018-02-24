@@ -2,10 +2,12 @@
 <link rel="import" href="../libs/phaser-js.html">
 <link rel="import" href="../libs/phaser-arcade-physics-js.html">
 <link rel="import" href="../libs/immutable-js.html">
-<link rel="import" href="client-app-datastore.html">
-<link rel="import" href="client-app-renderer.html">
+<link rel="import" href="../libs/redux-js.html">
+<link rel="import" href="data/schema.html">
+<link rel="import" href="data/store.html">
 <link rel="import" href="game-objects/boat.html">
 <link rel="import" href="game-objects/port.html">
+<link rel="import" href="rendering/coord.html">
 
 <dom-module id="client-app">
   <template>
@@ -17,6 +19,8 @@
   </template>
 
   <script>
+    "use strict";
+
     /**
      * @customElement
      * @polymer
@@ -36,14 +40,16 @@
         // Note: Phaser sets `this` to the current Phaser Scene instance before calling this function
         const scene = this;
 
-        scene.data.set( 'store', Datastore); // declared within client-app-datastore.html
-        scene.data.set( 'schema', Schema); // declared within client-app-datastore.html
-
+        // Load images and spritesheet assets
         scene.load.spritesheet( 'boat', 'assets/boat/boat-spritesheet.png', { frameWidth: 600, frameHeight: 600, endFrame: 4 });
         scene.load.spritesheet( 'wind', 'assets/wind/wind-spritesheet.png', { frameWidth: 50, frameHeight: 50, endFrame: 3 });
         scene.load.image( 'landmark', 'assets/landmark/landmark.png', { frameWidth: 50, frameHeight: 50, endFrame: 3 });
-        // scene.load.image( 'earth', 'assets/lake/lake-earth-around.png');
         scene.load.image( 'lake', 'assets/lake/lake-contour.png');
+        // scene.load.image( 'earth', 'assets/lake/lake-earth-around.png');
+
+        // Store is declared within data/store.html module
+        const store = Redux.createStore( Store.actionHandler, Store.initialState);
+        scene.data.set( 'store', store);
 
         console.dir( scene);
       }

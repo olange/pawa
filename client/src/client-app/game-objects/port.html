@@ -1,7 +1,8 @@
 <link rel="import" href="../../libs/phaser-js.html">
-<link rel="import" href="../client-app-renderer.html">
+<link rel="import" href="../rendering/coord.html">
 
 <script>
+  "use strict";
   class Port extends Phaser.GameObjects.Sprite {
     constructor( scene, name) {
       console.info( `Port: constructor( scene, '${name}') called`);
@@ -45,8 +46,10 @@
       const portState = this.syncData();
       
       // Target position of the port in the scene
-      let targetX = Renderer.meshCoordScaler() * (portState.position.col - 1.5) + Renderer.meshCoordMinX();
-      let targetY = Renderer.meshCoordScaler() * (portState.position.row - 1.5) + Renderer.meshCoordMinY();
+      let targetX = RenderingCoord.meshCoordScaler() * (portState.position.col - 1.5)
+                    + RenderingCoord.meshCoordMinX();
+      let targetY = RenderingCoord.meshCoordScaler() * (portState.position.row - 1.5)
+                    + RenderingCoord.meshCoordMinY();
 
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned

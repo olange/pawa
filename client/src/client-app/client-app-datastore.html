@@ -83,38 +83,44 @@
     const initialState = Immutable.Map({
       boats: Immutable.Map({
         'BOAT1': new Schema.Boat({
-          position: new Schema.MeshCoord({ row: 19, col: 0 }),
+          position: new Schema.MeshCoord({ row: 20, col: 0 }),
           direction: 0,
           windDirection: 0,
           originalPort: 'GVA',
-          targetPort: 'LSNE' }),
+          targetPort: 'LSN' }),
         'BOAT2': new Schema.Boat({
           position: new Schema.MeshCoord({ row: 10, col: 8 }),
           direction: 0,
           windDirection: 60,
           originalPort: 'GVA',
-          targetPort: 'LSNE' }),
+          targetPort: 'MTX' }),
         'BOAT3': new Schema.Boat({
           position: new Schema.MeshCoord({ row: 12, col: 3 }),
           direction: 0,
           windDirection: 90,
-          originalPort: 'GVA',
-          targetPort: 'LSNE' }),
+          originalPort: 'NYN',
+          targetPort: 'TLB' }),
         'BOAT4': new Schema.Boat({
           position: new Schema.MeshCoord({ row: 9, col: 12 }),
           direction: 0,
           windDirection: 180,
-          originalPort: 'GVA',
-          targetPort: 'LSNE' })
+          originalPort: 'LSN',
+          targetPort: 'MTX' }),
+        'BOAT5': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 8, col: 28 }),
+          direction: 90,
+          windDirection: 270,
+          originalPort: 'TLB',
+          targetPort: 'MTX' })
       }),
       ports: Immutable.Map({
-        'LSNE': new Schema.Port({
+        'LSN': new Schema.Port({
           name: 'Lausanne',
-          position: new Schema.MeshCoord({ row: 0, col: 18 })
+          position: new Schema.MeshCoord({ row: 1, col: 18 })
         }),
         'GVA': new Schema.Port({
           name: 'Geneva',
-          position: new Schema.MeshCoord({ row: 21, col: 0 })
+          position: new Schema.MeshCoord({ row: 22, col: 0 })
         }),
         'NYN': new Schema.Port({
           name: 'Nyon',
@@ -122,11 +128,11 @@
         }),
         'TLB': new Schema.Port({
           name: 'Thonons-Les-Bains',
-          position: new Schema.MeshCoord({ row: 9, col: 13 })
+          position: new Schema.MeshCoord({ row: 9, col: 14 })
         }),
         'MTX': new Schema.Port({
           name: 'Montreux',
-          position: new Schema.MeshCoord({ row: 6, col: 31 })
+          position: new Schema.MeshCoord({ row: 6, col: 30 })
         })
       }),
       weatherStations: Immutable.Map({

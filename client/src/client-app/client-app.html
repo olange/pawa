@@ -40,7 +40,9 @@
 
         scene.load.spritesheet( 'boat', 'assets/boat/boat-spritesheet.png', { frameWidth: 600, frameHeight: 600, endFrame: 4 });
         scene.load.spritesheet( 'wind', 'assets/wind/wind-spritesheet.png', { frameWidth: 50, frameHeight: 50, endFrame: 3 });
-        scene.load.image( 'background', 'assets/lake/lake-contour.png');
+        scene.load.image( 'landmark', 'assets/landmark/landmark.png', { frameWidth: 50, frameHeight: 50, endFrame: 3 });
+        // scene.load.image( 'earth', 'assets/lake/lake-earth-around.png');
+        scene.load.image( 'lake', 'assets/lake/lake-contour.png');
 
         console.dir( scene);
       }
@@ -63,7 +65,9 @@
 
         //PROBLEM:Zooming out and readjusting viewport means that things don't render beyond 1200 x 900
         scene.cameras.main.setZoom( 0.5);
-        scene.add.image( 400, 300, 'background');
+        scene.add.image( 400, 300, 'lake');
+        // scene.add.image( 400, 300, 'earth');
+        scene.add.image( 400, 300, 'landmark');
         //Current Map size: 1600 x 1200
 
         // Add some boats to the scene

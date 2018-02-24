@@ -7,6 +7,7 @@
 <link rel="import" href="data/store.html">
 <link rel="import" href="game-objects/boat.html">
 <link rel="import" href="game-objects/port.html">
+<link rel="import" href="game-objects/wind.html">
 <link rel="import" href="rendering/coord.html">
 
 <dom-module id="client-app">
@@ -89,6 +90,9 @@
         scene.children.add( new Port( scene, 'NYN'));
         scene.children.add( new Port( scene, 'TLB'));
         scene.children.add( new Port( scene, 'MTX'));
+
+        //TestWithWind
+        scene.children.add( new Wind( scene, 1, 1));
       }
 
       update( time, delta) {

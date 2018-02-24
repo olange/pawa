@@ -58,8 +58,9 @@
       for (let row = 0; row < MESH_HEIGHT; row++) {
         data[ row] = [];
         for (let col = 0; col < MESH_WIDTH; col++) {
-          var value = Math.abs( Noise.perlin2( col / 10.0, row / 10.0));
-          data[ row][ col] = Math.ceil( value * 360);
+          var value =  Math.abs( Noise.perlin2( col / 10.0, row / 10.0));
+          data[ row][ col] = new Schema.Wind({ strength: Math.floor(Math.random() * Math.floor(3)),
+                             direction: Math.ceil( value * 360), position: new Schema.MeshCoord({ row: row, col: col})});
         }
       }
       console.dir( data);

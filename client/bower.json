@@ -6,7 +6,8 @@
     "polymer": "Polymer/polymer#^2.0.0",
     "phaser": "^3.1.0",
     "immutable": "^3.8.2",
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "font-roboto-local": "PolymerElements/font-roboto-local#^1.1.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

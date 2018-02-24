@@ -1,0 +1,82 @@
+<link rel="import" href="../data/schema.html">
+
+<script>
+  "use strict";
+  const RenderingCoord = (function () {
+    return {
+      //Is currently not called anywhere
+      geometricReference( position) {
+        var run = true;
+
+        //Currently since Camera is set on (0,0), the top right starts at (-300,-200)
+        const minX = geometricMinX();
+        const minY = geometricMinY();
+        const scale = geometricScaler();
+
+        var posX = position.x;
+        var posY = position.y;
+
+        var r = 0;
+        var c = 0;
+        while( posX > minX) {
+          posX -= scale;
+          r++;
+        }
+        while( posY > minY) {
+          posY -= scale;
+          c++;
+        }
+
+        //returns a record with the row and collumn its in
+        return new Schema.MeshCoord({
+          row: r,
+          col: c
+        });
+      }, // geometricReference
+      
+      meshCoordToScene( meshCoord) {
+        const sceneX = (-1.5 + meshCoord.col) * RenderingCoord.meshCoordScaler()
+          + RenderingCoord.meshCoordMinX();
+        const sceneY = (-1.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
+          + RenderingCoord.meshCoordMinY();
+        return new Phaser.Geom.Point( sceneX, sceneY);
+      },
+
+      //Use to scale mesh back to x and y
+      //Currently 16 by 12 squares, each square is 50 pixels
+      meshCoordScaler() {
+        return 50;
+      },
+
+      meshCoordMinX() {
+        return -300;
+      },
+
+      meshCoordMinY() {
+        return -200;
+      },
+
+      //If we are sending the wind object itself, change so it accepts that wind, and then changes the sprite it is associated with
+      //Send wind coordiantes, then get the wind drawn in the meshcordinates by a draw windsprite function
+
+      drawWindSprite( scene, meshCoord, windStrength, rotWind) {
+        var windSpriteType = 0;
+        if (windStrength == 1) {
+          windSpriteType = 1;
+        } else if (windStrength == 2) {
+          windSpriteType = 2;
+        } else if (windStrength == 3) {
+          windSpriteType = 3;
+        }
+        
+        //This gets the middle of the cell
+        const windSpriteDraw = RenderingCoord.meshCoordToScene( meshCoord);
+
+        //var test = phaserGame.windSpriteWidth;
+
+        const wind = scene.add.sprite( windSpriteDraw.x, windSpriteDraw.y, 'wind', windSpriteType); 
+        wind.angle = rotWind;
+      } // drawWindSprite      
+    };
+  })();
+</script>      

@@ -2,20 +2,25 @@
 <link rel="import" href="../libs/phaser-js.html">
 <link rel="import" href="../libs/phaser-arcade-physics-js.html">
 <link rel="import" href="../libs/immutable-js.html">
-<link rel="import" href="client-app-datastore.html">
-<link rel="import" href="client-app-renderer.html">
+<link rel="import" href="../libs/redux-js.html">
+<link rel="import" href="data/schema.html">
+<link rel="import" href="data/store.html">
+<link rel="import" href="game-objects/boat.html">
+<link rel="import" href="game-objects/port.html">
+<link rel="import" href="rendering/coord.html">
 
 <dom-module id="client-app">
   <template>
     <style>
-      :host {
-        display: block;
-      }
+      :host { display: block; }
+      h2 { font-weight: 200; }
     </style>
-    <h2>Hello [[greeting]]!</h2>
+    <h2>Boats and winds · [[name]]</h2>
   </template>
 
   <script>
+    "use strict";
+
     /**
      * @customElement
      * @polymer
@@ -24,9 +29,9 @@
       static get is() { return 'client-app'; }
       static get properties() {
         return {
-          greeting: {
+          name: {
             type: String,
-            value: 'Gus'
+            value: 'lac Léman'
           }
         };
       }
@@ -35,46 +40,84 @@
         // Note: Phaser sets `this` to the current Phaser Scene instance before calling this function
         const scene = this;
 
-        scene.data.set( 'store', Datastore); // declared within client-app-datastore.html
-        scene.data.set( 'schema', Schema); // declared within client-app-datastore.html
-        console.dir( scene);
+        // Load images and spritesheet assets
+        scene.load.spritesheet( 'boat', 'assets/boat/boat-spritesheet.png', { frameWidth: 600, frameHeight: 600, endFrame: 4 });
+        scene.load.spritesheet( 'wind', 'assets/wind/wind-spritesheet.png', { frameWidth: 50, frameHeight: 50, endFrame: 3 });
+        scene.load.image( 'landmark', 'assets/landmark/landmark.png', { frameWidth: 50, frameHeight: 50, endFrame: 3 });
+        scene.load.image( 'lake', 'assets/lake/lake-contour.png');
+        // scene.load.image( 'earth', 'assets/lake/lake-earth-around.png');
 
-        scene.load.spritesheet( 'boat', 'assets/boat-spritesheet.png', { frameWidth: 128, frameHeight: 128, endFrame: 3 });
-        scene.load.spritesheet( 'wind', 'assets/wind-spritesheet.png', { frameWidth: 64, frameHeight: 64, endFrame: 3 });        
-        scene.load.image( 'background', 'assets/background.png');
+        // Store is declared within data/store.html module
+        const store = Redux.createStore( Store.actionHandler, Store.initialState);
+        scene.data.set( 'store', store);
+
+        console.dir( scene);
       }
-      
+
       create() {
         // Note: Phaser sets `this` to the Phaser Scene instance before calling this function
         const scene = this;
         const store = scene.data.get( 'store');
-        const unsubscribe = store.subscribe( function handleChange() { console.dir( store.getState()); });
         console.dir( store.getState());
+
+        // Transform Redux datastore state changes into Phaser events
+        store.unsubscribe = store.subscribe( function handleStoreStateChange() {
+          console.info( "Store: handleStoreStateChange() emits `store-state-change` Phaser event")
+          scene.events.emit( 'store-state-changed');
+        });
+
+        scene.events.on( 'store-state-changed', function () {
+          scene.render();
+        });
 
         //PROBLEM:Zooming out and readjusting viewport means that things don't render beyond 1200 x 900
         scene.cameras.main.setZoom( 0.5);
-        scene.add.image( 400, 300, 'background');
-        //Current Map size: 1600 x 1200
+        scene.add.image( 400, 300, 'lake'); // Current Map size: 1600 x 1200
+        // scene.add.image( 400, 300, 'earth');
+        // scene.add.image( 400, 300, 'landmark');
 
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 0, column: 0 }), 0, 0);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 1, column: 0 }), 1, 90);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 2, column: 0 }), 2, 45);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 3, column: 0 }), 1, -45);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 4, column: 0 }), 2, -90);
-        Renderer.drawWindSprite( scene, new Schema.GeoLocation({ row: 5, column: 0 }), 0, 0);
-        Renderer.drawBoatSprite( scene, new Schema.Position({ x: 800, y: 500 }), 0, 180);
+        // Add boats to the scene …
+        scene.children.add( new Boat( scene, 'BOAT1'));
+        scene.children.add( new Boat( scene, 'BOAT2'));
+        scene.children.add( new Boat( scene, 'BOAT3'));
+        scene.children.add( new Boat( scene, 'BOAT4'));
+        scene.children.add( new Boat( scene, 'BOAT5'));
+
+        // … and ports
+        scene.children.add( new Port( scene, 'LSN'));
+        scene.children.add( new Port( scene, 'GVA'));
+        scene.children.add( new Port( scene, 'NYN'));
+        scene.children.add( new Port( scene, 'TLB'));
+        scene.children.add( new Port( scene, 'MTX'));
       }
 
-      update() {
-        const UPDATE_FREQ = 10000; // 10000ms = 10s
+      update( time, delta) {
+        const NEXT_TIME_INTERVAL = 10000; // 10000ms = 10s
         const scene = this;
-        const now = scene.time.now;
-        const lastTime = scene.data.get( 'lastTime');
-        if ((lastTime === undefined) || (now - lastTime > UPDATE_FREQ)) {
-          scene.data.set( 'lastTime', now);
+        const nextTime = this.nextTime;
+        if ((nextTime === undefined) || (time > nextTime)) {
+          console.info( 'Scene: update() is dispatching actions');
+          this.nextTime = time + NEXT_TIME_INTERVAL;
+
           const store = scene.data.get( 'store');
-          store.dispatch( { type: 'INCREASE_WINDS' });
+          store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', 
+                            position: new Schema.MeshCoord({ row: 2, col: 18 })});
         }
+      }
+
+      render() {
+        console.info( 'Scene: render() was called');
+        const scene = this;
+
+        // const store = scene.data.get( 'store');
+        // const state = store.getState();
+
+        // Ask every game object of the scene to synchronize
+        // with the new state of the datastore
+        scene.children.each( function (child) {
+          child.update();
+        });
       }
 
       constructor() {
@@ -93,7 +136,8 @@
           scene: {
             preload: this.preload,
             create: this.create,
-            update: this.update
+            update: this.update,
+            render: this.render
           }
         };
 

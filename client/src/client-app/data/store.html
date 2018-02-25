@@ -38,7 +38,7 @@
               ))
         case 'CHANGE_WINDS_DIRECTION':
           return state.update( 'windMesh', (windMesh) =>
-              windMesh.update( 'tiles', (tiles) => windFlowField( Math.random())
+              windMesh.update( 'tiles', (tiles) => windFlowField( action.ts)
               ))
         default:
           return state

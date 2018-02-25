@@ -118,7 +118,7 @@
       }
 
       update( time, delta) {
-        const NEXT_TIME_INTERVAL = 10000; // 10000ms = 10s
+        const NEXT_TIME_INTERVAL = 400; // 1000ms = 1s
         const scene = this;
         const nextTime = this.nextTime;
         if ((nextTime === undefined) || (time > nextTime)) {
@@ -127,7 +127,7 @@
 
           const store = scene.data.get( 'store');
           //store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
-          store.dispatch( { type: 'CHANGE_WINDS_DIRECTION' });
+          store.dispatch( { type: 'CHANGE_WINDS_DIRECTION', ts: time / 100000000.0 });
           /*store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', 
                             position: new Schema.MeshCoord({ row: 2, col: 18 })});*/
         }

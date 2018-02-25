@@ -6,7 +6,7 @@
   class Boat extends Phaser.GameObjects.Sprite {
     constructor( scene, name) {
       console.info( `Boat: constructor( scene, '${name}') called`);
-
+      
       // For now, Sprite has no position and is inactive; it will
       // be activated and positionned with first `update()` call
       super( scene, null, null, 'boat', 0);
@@ -14,6 +14,7 @@
 
       // Identifier of the boat, used to lookup its state in the datastore
       this.setName( "" + name);
+      this.tweening = false;
 
       // Properties that are synced from the datastore state
       this.data = null;
@@ -71,33 +72,38 @@
       console.info( "Boat: update() called");
       // Fetch the state with the datastore
       const boatState = this.syncData();
-      
+
       // Re-position the boat in scene coordinates
 
       const store = this.scene.data.get( 'store');
       //let target = RenderingCoord.meshCoordToScene( boatState.position);
-      
-      console.log(boatState);
-      console.log(this.x);
-      console.log(this.y);
 
       if ((this.x == null) ||( this.y == null)) {
         // Activate and position the sprite, if it was not positioned
+        console.log('Initialize boat');
         let target = RenderingCoord.meshCoordToScene( boatState.position);
         this.setActive( true);
         this.x = target.x;
         this.y = target.y;
-      } else if(this.scene.tweens.getTweensOf(this).length == 0){
-        let target = RenderingCoord.meshCoordToScene( store.getState().getIn( [ 'ports', boatState.targetPort ]).position);
-        //let target = RenderingCoord.meshCoordToScene( boatState.position);
+      } else if(this.tweening == false){
+        this.tweening = true;
 
+        let target = RenderingCoord.meshCoordToScene( store.getState().getIn( [ 'ports', boatState.targetPort ]).position);
+
+        
+        //If the wind speeds are higher, then the boats move faster
+        var speed = store.getState().get( 'windMesh').tiles[boatState.position.row][boatState.position.col].strength * 1.25;
+        if(speed == null|| speed == 0) speed = 1;
+        
+        //Without the +1, once the target is reached the x and y value is 0, which means the duration is 0, so it doesn't render
         this.scene.tweens.add({
           targets: this,
-           x: { value: target.x, duration: 50 * Math.abs((target.x - this.x)) },
-           y: { value: target.y, duration: 50 * Math.abs((target.y - this.y)) }
+           x: { value: target.x, duration: (30 * Math.abs((target.x - this.x)) + 1) / speed},
+           y: { value: target.y, duration: (30 * Math.abs((target.y - this.y)) + 1) / speed},
+           onComplete: function (test) { 
+             console.log("done tweening!");
+          }
         });
-
-        //console.dir(this.scene.tweens.getTweensOf(this).length);
       } 
 
       // Select correct sprite frame, depending on current
@@ -134,16 +140,31 @@
         _calcSailType += 2;
       } else if (this.windDirection >=  225 && this.windDirection < 315) {
         //If the wind direction is west
-        _calcSailType += + 3;
-      }
-
-      if (_calcSailType > 2) { 
-        _calcSailType -= - 2;
+        _calcSailType += 3;
       }
       
-      //console.log(this.frame);
-      this.setFrame(([ 1, 2, 1])[ _calcSailType]);
+      //Ensures that if calcSailReduce is over, it loops around back to the start
+      for(var i = 0; i < _calcSailType; i++) {
+        if(i > 2) {
+          i = 0;
+        }
+      }
 
+      _calcSailType = i;
+      
+      var frame = ([ 1, 0, 1, 2])[ _calcSailType];
+      //If the wind is coming from behind, this gets whether the sail goes far left or right
+      if(frame == 1) {
+        if (this.windDirection > 180 && this.windDirection < 225) {
+          this.setFrame(1);
+        }  else if (this.windDirection < 180 && this.windDirection > 135) { 
+          this.setFrame(3);
+        }
+      
+      } else {
+        this.setFrame(frame);
+      }
+      
       this.angle = this.direction;
     }
   }

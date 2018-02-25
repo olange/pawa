@@ -22,15 +22,14 @@
 
     const actionHandler = function actionHandler( state = Immutable.Map(), action) {
       switch (action.type) {
-        case 'SHUFFLE_BOATS_DIRECTION':
+        case 'CHANGE_BOATS_WIND_DIRECTION':
           return state.update( 'boats', (boats) =>
             boats.map((boat) =>
-              boat.update( 'direction', function (direction) { 
-                return direction = Math.floor(Math.random() * 359);
-              })))
+              boat.update( 'windDirection', (windDirection) => state.get( 'windMesh').tiles[boat.position.row][boat.position.col].direction
+              )))
         case 'CHANGE_BOAT_POSITION':
           return state.updateIn( ['boats', action.boat], (boat) =>
-              boat.update( 'position', (position) => action.position
+              boat.update( 'position', position => action.position
               ))
         case 'CHANGE_BOAT_DIRECTION':
           return state.updateIn( ['boats', action.boat], (boat) =>
@@ -40,6 +39,14 @@
           return state.update( 'windMesh', (windMesh) =>
               windMesh.update( 'tiles', (tiles) => windFlowField( Math.random())
               ))
+        case 'CHANGE_BOAT_WIND_DIRECTION':
+          return state.updateIn( ['boats', action.boat], (boat) =>
+              boat.update( 'windDirection', (windDirection) => state.get( 'windMesh').tiles[boat.position.row][boat.position.col].direction
+              ))
+        case 'RETURN_BOAT_TO_ORIGIN':
+          return state.updateIn( ['boats', action.boat], (boat) =>
+              boat.update( 'position', (position) => state.getIn( [ 'ports', boat.originalPort ]).position
+              ))
         default:
           return state
       }
@@ -47,8 +54,8 @@
 
     const windFlowField = function windFlowField( ts) {
       // Uses the Noise module, globally declared within imported libs/perlin.js
-      const MESH_WIDTH = 32;
-      const MESH_HEIGHT = 22;
+      const MESH_WIDTH = 33;
+      const MESH_HEIGHT = 23;
 
       if (ts === undefined)
         ts = Math.random(); // Time seed for Perlin Noise
@@ -74,40 +81,46 @@
     const initialState = Immutable.Map({
       boats: Immutable.Map({
         'BOAT1': new Schema.Boat({
-          position: new Schema.MeshCoord({ row: 20, col: 0 }),
+          position: new Schema.MeshCoord({ row: 9, col: 4 }),
           direction: 0,
           windDirection: 0,
-          originalPort: 'GVA',
-          targetPort: 'LSN' }),
+          originalPort: 'NYN',
+          targetPort: 'MTX' }),
         'BOAT2': new Schema.Boat({
-          position: new Schema.MeshCoord({ row: 10, col: 8 }),
+          position: new Schema.MeshCoord({ row: 9, col: 4 }),
           direction: 0,
           windDirection: 60,
-          originalPort: 'GVA',
-          targetPort: 'MTX' }),
-        'BOAT3': new Schema.Boat({
-          position: new Schema.MeshCoord({ row: 12, col: 3 }),
-          direction: 0,
-          windDirection: 90,
           originalPort: 'NYN',
           targetPort: 'TLB' }),
+        'BOAT3': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 9, col: 14 }),
+          direction: 0,
+          windDirection: 90,
+          originalPort: 'TLB',
+          targetPort: 'LSN' }),
         'BOAT4': new Schema.Boat({
-          position: new Schema.MeshCoord({ row: 9, col: 12 }),
+          position: new Schema.MeshCoord({ row: 9, col: 14 }),
           direction: 0,
           windDirection: 180,
-          originalPort: 'LSN',
+          originalPort: 'TLB',
           targetPort: 'MTX' }),
         'BOAT5': new Schema.Boat({
-          position: new Schema.MeshCoord({ row: 8, col: 28 }),
+          position: new Schema.MeshCoord({ row: 1, col: 17 }),
+          direction: 90,
+          windDirection: 270,
+          originalPort: 'LSN',
+          targetPort: 'TLB' }),
+        'BOAT6': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 1, col: 17 }),
           direction: 90,
           windDirection: 270,
           originalPort: 'TLB',
-          targetPort: 'MTX' })
+          targetPort: 'NYN' })
       }),
       ports: Immutable.Map({
         'LSN': new Schema.Port({
           name: 'Lausanne',
-          position: new Schema.MeshCoord({ row: 1, col: 18 })
+          position: new Schema.MeshCoord({ row: 1, col: 17 })
         }),
         'GVA': new Schema.Port({
           name: 'Geneva',
@@ -167,8 +180,8 @@
         ]
       }),
       windMesh: new Schema.Mesh({
-        width: 32,
-        height: 22,
+        width: 33,
+        height: 23,
         tiles: windFlowField( Math.random())
       })
     }); // initialState

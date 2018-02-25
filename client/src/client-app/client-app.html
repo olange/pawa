@@ -66,79 +66,82 @@
           console.info( "Store: handleStoreStateChange() emits `store-state-change` Phaser event")
           scene.events.emit( 'store-state-changed');
         });
-
+        
+        //This phaser event occurs after any update to the data store, and it re-renders all gameobjects in the scene
         scene.events.on( 'store-state-changed', function () {
           scene.render();
         });
 
-        //PROBLEM:Zooming out and readjusting viewport means that things don't render beyond 1200 x 900
+        //NOTE: Zooming out and readjusting viewport means that things don't render beyond 1200 x 900
         scene.cameras.main.setZoom( 0.5);
-        scene.add.image( 400, 300, 'lake'); // Current Map size: 1600 x 1200
-        // scene.add.image( 400, 300, 'earth');
-        // scene.add.image( 400, 300, 'landmark');
+        scene.add.image( 400, 300, 'lake'); // Current Map size: 1600 x 1200 pixels
 
-        // Add boats to the scene …
+        // Add boats to the scene from the data store
 
         var boats = store.getState().get( 'boats');
         
         for(var z = 0; z < boats.count(); z++ ) {
           
           var boatName = 'BOAT'+(z+1).toString();
-
           var boat = store.getState().getIn( [ 'boats', boatName ]);
 
-          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: boatName, 
-                            position: store.getState().getIn( [ 'ports', boat.originalPort ]).position});
-          
+          store.dispatch( { type: 'RETURN_BOAT_TO_ORIGIN', boat: boatName } );
           scene.children.add( new Boat( scene, boatName));
-
         }
-        
-        /*scene.children.add( new Boat( scene, 'BOAT1'));
-        scene.children.add( new Boat( scene, 'BOAT2'));
-        scene.children.add( new Boat( scene, 'BOAT3'));
-        scene.children.add( new Boat( scene, 'BOAT4'));
-        scene.children.add( new Boat( scene, 'BOAT5'));*/
 
-        // … and ports
-        scene.children.add( new Port( scene, 'LSN'));
-        scene.children.add( new Port( scene, 'GVA'));
-        scene.children.add( new Port( scene, 'NYN'));
-        scene.children.add( new Port( scene, 'TLB'));
-        scene.children.add( new Port( scene, 'MTX'));
-
-        //Adds the wind Matrix
+        //Visually displays the wind matrix to the scene
         var windMesh = store.getState().get( 'windMesh');
         for(var h = 0; h < windMesh.height; h++ ) {
           for(var w = 0; w < windMesh.width; w++ ) {
             scene.children.add( new Wind( scene, h, w));
           }
         }
+
+        // Adds the ports to the scene
+        scene.children.add( new Port( scene, 'LSN'));
+        scene.children.add( new Port( scene, 'GVA'));
+        scene.children.add( new Port( scene, 'NYN'));
+        scene.children.add( new Port( scene, 'TLB'));
+        scene.children.add( new Port( scene, 'MTX'));
         
       }
 
       update( time, delta) {
-        const NEXT_TIME_INTERVAL = 10000; // 10000ms = 10s
+        const NEXT_TIME_INTERVAL = 4000; // 4000ms = 4s
         const scene = this;
         const nextTime = this.nextTime;
+        
+        //After this time, the data store is edited
         if ((nextTime === undefined) || (time > nextTime)) {
           console.info( 'Scene: update() is dispatching actions');
           this.nextTime = time + NEXT_TIME_INTERVAL;
-
+          
           const store = scene.data.get( 'store');
-          //store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
-          store.dispatch( { type: 'CHANGE_WINDS_DIRECTION' });
-          /*store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', 
-                            position: new Schema.MeshCoord({ row: 2, col: 18 })});*/
+
+          //Checks to see, and updates, boat positions in the data store
+          var boats = store.getState().get( 'boats');
+
+          for(var z = 0; z < boats.count(); z++ ) {
+            var boatName = 'BOAT'+(z+1).toString();
+            var boat = store.getState().getIn( [ 'boats', boatName ]);
+            RenderingCoord.updateBoatMeshCoord( scene.children.getByName(boatName), boat, store);
+          }
+          
+          //Every update round, there is a one in two chance that the winds change
+          //The boats then update so that they can change their sail positions
+          if(Math.floor(Math.floor(Math.random() * 2) == 0)) {
+            store.dispatch( { type: 'CHANGE_WINDS_DIRECTION' });
+            store.dispatch( { type: 'CHANGE_BOATS_WIND_DIRECTION', s: store });
+          }
+          
+          
         }
       }
 
       render() {
+        
         console.info( 'Scene: render() was called');
         const scene = this;
-
-        // const store = scene.data.get( 'store');
-        // const state = store.getState();
 
         // Ask every game object of the scene to synchronize
         // with the new state of the datastore

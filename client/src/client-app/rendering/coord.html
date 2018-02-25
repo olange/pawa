@@ -4,79 +4,62 @@
   "use strict";
   const RenderingCoord = (function () {
     return {
-      //Is currently not called anywhere
-      geometricReference( position) {
-        var run = true;
-
-        //Currently since Camera is set on (0,0), the top right starts at (-300,-200)
-        const minX = geometricMinX();
-        const minY = geometricMinY();
-        const scale = geometricScaler();
-
-        var posX = position.x;
-        var posY = position.y;
-
-        var r = 0;
-        var c = 0;
-        while( posX > minX) {
-          posX -= scale;
-          r++;
-        }
-        while( posY > minY) {
-          posY -= scale;
-          c++;
-        }
-
-        //returns a record with the row and collumn its in
-        return new Schema.MeshCoord({
-          row: r,
-          col: c
-        });
-      }, // geometricReference
       
+      //Fixed this
       meshCoordToScene( meshCoord) {
-        const sceneX = (-1.5 + meshCoord.col) * RenderingCoord.meshCoordScaler()
+        const sceneX = (0.5 + meshCoord.col) * RenderingCoord.meshCoordScaler()
           + RenderingCoord.meshCoordMinX();
-        const sceneY = (-1.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
+        const sceneY = (0.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
           + RenderingCoord.meshCoordMinY();
         return new Phaser.Geom.Point( sceneX, sceneY);
       },
 
       //Use to scale mesh back to x and y
-      //Currently 16 by 12 squares, each square is 50 pixels
+      //Currently 33 by 23 squares, each square is 50 pixels by 50
       meshCoordScaler() {
         return 50;
       },
 
+      //Due to camera having rendering issues if moved, the top of the gameworld starts at x: -400, y: -300
       meshCoordMinX() {
-        return -300;
+        return -400;
       },
 
       meshCoordMinY() {
-        return -200;
+        return -300;
       },
 
-      //If we are sending the wind object itself, change so it accepts that wind, and then changes the sprite it is associated with
-      //Send wind coordiantes, then get the wind drawn in the meshcordinates by a draw windsprite function
+      // Updates the meshcoords of the boat in the data store
+      updateBoatMeshCoord(boatObject, boat, store) {
 
-      drawWindSprite( scene, meshCoord, windStrength, rotWind) {
-        var windSpriteType = 0;
-        if (windStrength == 1) {
-          windSpriteType = 1;
-        } else if (windStrength == 2) {
-          windSpriteType = 2;
-        } else if (windStrength == 3) {
-          windSpriteType = 3;
-        }
+        //Gets the quotient (the division result without the remainder)
+        var c = Math.floor((boatObject.x - RenderingCoord.meshCoordMinX()) / RenderingCoord.meshCoordScaler());
+        var r = Math.floor((boatObject.y - RenderingCoord.meshCoordMinY()) / RenderingCoord.meshCoordScaler());
         
-        //This gets the middle of the cell
-        const windSpriteDraw = RenderingCoord.meshCoordToScene( meshCoord);
+        
+        //Basically if the meshCoordinates are now Outdated, update the mesh Coordinates
+        
+        if ((r != boat.position.row) || (c != boat.position.col)) {
+          
+          var newMeshCoord = new Schema.MeshCoord({ row: r, col: c });
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: boatObject.name, position: newMeshCoord});
+        }
 
-        //var test = phaserGame.windSpriteWidth;
+        //If the boat has reached it's destination port, then return it to its original port in both the database and in the game world
+        var boatDestination = store.getState().getIn( [ 'ports', boat.targetPort ]).position;
 
-        const wind = scene.add.sprite( windSpriteDraw.x, windSpriteDraw.y, 'wind', windSpriteType); 
-        wind.angle = rotWind;
-      } // drawWindSprite      
+        if( boat.position.row == boatDestination.row && boat.position.col == boatDestination.col) {
+
+          var origin = store.getState().getIn( [ 'ports', boat.originalPort ]);
+          store.dispatch( { type: 'RETURN_BOAT_TO_ORIGIN', boat: boatObject.name } );
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: boatObject.name, position: origin.position });
+
+          boatObject.x = RenderingCoord.meshCoordToScene(origin.position).x;
+          boatObject.y = RenderingCoord.meshCoordToScene(origin.position).y;
+          boatObject.tweening = false;
+          }
+      }
+
     };
   })();
 </script>      

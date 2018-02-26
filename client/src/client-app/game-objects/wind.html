@@ -1,0 +1,70 @@
+<link rel="import" href="../../libs/phaser-js.html">
+<link rel="import" href="../rendering/coord.html">
+
+<script>
+  "use strict";
+  class Wind extends Phaser.GameObjects.Sprite {
+    constructor( scene, row, col) {
+      // For now, Sprite has no position and is inactive; it will
+      // be activated and positionned with first `update()` call
+      super( scene, null, null, 'wind', 0);
+      this.setActive( false);
+      
+      // Identifier of the wind, used to lookup its state in the datastore
+
+      // Properties that are synced from the datastore state
+      this.col = col;
+      this.row = row;
+      this.data = null;
+      this.direction = null;
+      this.lastDirection = null;
+      this.strength = null;
+      this.lastStrength = null;
+      // Trigger initial synchronization of the Wind sprite state
+      // with the wind entity of the datastore it is bound to
+      this.update();
+    }
+
+    syncData() {
+      // Fetch the state of the wind from the datastore, looking up
+      // the wind entities for the one matching the wind name
+      const store = this.scene.data.get( 'store');
+      const windState = store.getState().get( 'windMesh').tiles[this.row][this.col];
+
+      if (windState === undefined) {
+        throw new Error( `Wind.constructor(): cannot bind to datastore; it is expected to contain a wind at given col '${this.col}' and row '${this.row}'`);
+      }
+
+      // Data chunk describing the state of the wind (latest state);
+      // can be retrieved with `this.getData( 'state')` anytime
+      this.setData( 'state', windState);
+
+      // Direction the wind is heading towards, expressed as an angle,
+      // in degrees: 0 = N, 45 = NE, 90 = E, 180 = S, 270 = W
+
+      this.position = windState.position;
+      this.direction = windState.direction;
+      this.strength = windState.strength;
+
+      return windState;
+    }
+
+    update() {
+      //console.info( "Wind: update() called");
+      // Fetch the state with the datastore
+      const windState = this.syncData();
+
+      // Re-position the wind in scene coordinates
+      if ((this.x == null) ||( this.y == null)) {
+        // Activate and position the sprite, if it was not positioned
+        let target = RenderingCoord.meshCoordToScene( this.position);
+        this.setActive( true);
+        this.x = target.x;
+        this.y = target.y;
+      };
+
+      this.setFrame(this.strength); 
+      this.setAngle(this.direction);
+    }
+  }
+</script>

@@ -37,7 +37,7 @@
       meshCoordToScene( meshCoord) {
         const sceneX = (-1.5 + meshCoord.col) * RenderingCoord.meshCoordScaler()
           + RenderingCoord.meshCoordMinX();
-        const sceneY = (-1.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
+        const sceneY = (-0.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
           + RenderingCoord.meshCoordMinY();
         return new Phaser.Geom.Point( sceneX, sceneY);
       },
@@ -68,7 +68,7 @@
         } else if (windStrength == 3) {
           windSpriteType = 3;
         }
-        
+
         //This gets the middle of the cell
         const windSpriteDraw = RenderingCoord.meshCoordToScene( meshCoord);
 

@@ -36,6 +36,10 @@
           return state.updateIn( ['boats', action.boat], (boat) =>
               boat.update( 'direction', (direction) => action.direction
               ))
+        case 'CHANGE_WINDS_DIRECTION':
+          return state.update( 'windMesh', (windMesh) =>
+              windMesh.update( 'tiles', (tiles) => windFlowField( action.ts)
+              ))
         default:
           return state
       }
@@ -58,8 +62,9 @@
       for (let row = 0; row < MESH_HEIGHT; row++) {
         data[ row] = [];
         for (let col = 0; col < MESH_WIDTH; col++) {
-          var value = Math.abs( Noise.perlin2( col / 10.0, row / 10.0));
-          data[ row][ col] = Math.ceil( value * 360);
+          var value =  Math.abs( Noise.perlin2( col / 10.0, row / 10.0));
+          data[ row][ col] = new Schema.Wind({ strength: Math.floor(Math.random() * Math.floor(3)),
+                             direction: Math.ceil( value * 360), position: new Schema.MeshCoord({ row: row, col: col})});
         }
       }
       console.dir( data);
@@ -102,23 +107,23 @@
       ports: Immutable.Map({
         'LSN': new Schema.Port({
           name: 'Lausanne',
-          position: new Schema.MeshCoord({ row: 1, col: 18 })
+          position: new Schema.MeshCoord({ row: 0, col: 18 })
         }),
         'GVA': new Schema.Port({
           name: 'Geneva',
-          position: new Schema.MeshCoord({ row: 22, col: 0 })
+          position: new Schema.MeshCoord({ row: 21, col: 0 })
         }),
         'NYN': new Schema.Port({
           name: 'Nyon',
-          position: new Schema.MeshCoord({ row: 9, col: 4 })
+          position: new Schema.MeshCoord({ row: 8, col: 5 })
         }),
         'TLB': new Schema.Port({
           name: 'Thonons-Les-Bains',
-          position: new Schema.MeshCoord({ row: 9, col: 14 })
+          position: new Schema.MeshCoord({ row: 8, col: 14 })
         }),
         'MTX': new Schema.Port({
           name: 'Montreux',
-          position: new Schema.MeshCoord({ row: 6, col: 30 })
+          position: new Schema.MeshCoord({ row: 5, col: 30 })
         })
       }),
       weatherStations: Immutable.Map({

@@ -7,6 +7,7 @@
 <link rel="import" href="data/store.html">
 <link rel="import" href="game-objects/boat.html">
 <link rel="import" href="game-objects/port.html">
+<link rel="import" href="game-objects/wind.html">
 <link rel="import" href="rendering/coord.html">
 
 <dom-module id="client-app">
@@ -77,11 +78,27 @@
         // scene.add.image( 400, 300, 'landmark');
 
         // Add boats to the scene …
-        scene.children.add( new Boat( scene, 'BOAT1'));
+
+        var boats = store.getState().get( 'boats');
+        
+        for(var z = 0; z < boats.count(); z++ ) {
+          
+          var boatName = 'BOAT'+(z+1).toString();
+
+          var boat = store.getState().getIn( [ 'boats', boatName ]);
+
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: boatName, 
+                            position: store.getState().getIn( [ 'ports', boat.originalPort ]).position});
+          
+          scene.children.add( new Boat( scene, boatName));
+
+        }
+        
+        /*scene.children.add( new Boat( scene, 'BOAT1'));
         scene.children.add( new Boat( scene, 'BOAT2'));
         scene.children.add( new Boat( scene, 'BOAT3'));
         scene.children.add( new Boat( scene, 'BOAT4'));
-        scene.children.add( new Boat( scene, 'BOAT5'));
+        scene.children.add( new Boat( scene, 'BOAT5'));*/
 
         // … and ports
         scene.children.add( new Port( scene, 'LSN'));
@@ -89,10 +106,19 @@
         scene.children.add( new Port( scene, 'NYN'));
         scene.children.add( new Port( scene, 'TLB'));
         scene.children.add( new Port( scene, 'MTX'));
+
+        //Adds the wind Matrix
+        var windMesh = store.getState().get( 'windMesh');
+        for(var h = 0; h < windMesh.height; h++ ) {
+          for(var w = 0; w < windMesh.width; w++ ) {
+            scene.children.add( new Wind( scene, h, w));
+          }
+        }
+        
       }
 
       update( time, delta) {
-        const NEXT_TIME_INTERVAL = 10000; // 10000ms = 10s
+        const NEXT_TIME_INTERVAL = 400; // 1000ms = 1s
         const scene = this;
         const nextTime = this.nextTime;
         if ((nextTime === undefined) || (time > nextTime)) {
@@ -100,9 +126,10 @@
           this.nextTime = time + NEXT_TIME_INTERVAL;
 
           const store = scene.data.get( 'store');
-          store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
-          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', 
-                            position: new Schema.MeshCoord({ row: 2, col: 18 })});
+          //store.dispatch( { type: 'SHUFFLE_BOATS_DIRECTION' });
+          store.dispatch( { type: 'CHANGE_WINDS_DIRECTION', ts: time / 100000000.0 });
+          /*store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: 'BOAT2', 
+                            position: new Schema.MeshCoord({ row: 2, col: 18 })});*/
         }
       }
 

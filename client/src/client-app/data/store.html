@@ -1,0 +1,194 @@
+<link rel="import" href="../../libs/immutable-js.html">
+<link rel="import" href="../../libs/redux-js.html">
+<link rel="import" href="../../libs/perlin.html">
+<link rel="import" href="schema.html">
+
+<script>
+  "use strict";
+  var Store = (function () {
+    // Sidenote:
+    //
+    // The above anonymous function declaration comes from a classical
+    // Javascript idiom, to create a local scope, to avoid variables,
+    // constants and function declarations to inadvertendly pollute
+    // the global scope:
+    //
+    // (function () { some(); code(); then(); return { a value }})()
+    //
+    // Within the first parenthesis, we declare and return an anonymous function;
+    // with the two last parenthesis, we immediately invoke that new function,
+    // effectively returning the value; variables that would be created
+    // within the scope of the anonymous function would be kept local.
+
+    const actionHandler = function actionHandler( state = Immutable.Map(), action) {
+      switch (action.type) {
+        case 'CHANGE_BOATS_WIND_DIRECTION':
+          return state.update( 'boats', (boats) =>
+            boats.map((boat) =>
+              boat.update( 'windDirection', (windDirection) => state.get( 'windMesh').tiles[boat.position.row][boat.position.col].direction
+              )))
+        case 'CHANGE_BOAT_POSITION':
+          return state.updateIn( ['boats', action.boat], (boat) =>
+              boat.update( 'position', position => action.position
+              ))
+        case 'CHANGE_BOAT_DIRECTION':
+          return state.updateIn( ['boats', action.boat], (boat) =>
+              boat.update( 'direction', (direction) => action.direction
+              ))
+        case 'CHANGE_WINDS_DIRECTION':
+          return state.update( 'windMesh', (windMesh) =>
+              windMesh.update( 'tiles', (tiles) => windFlowField( action.ts)
+              ))
+        case 'CHANGE_BOAT_WIND_DIRECTION':
+          return state.updateIn( ['boats', action.boat], (boat) =>
+              boat.update( 'windDirection', (windDirection) => state.get( 'windMesh').tiles[boat.position.row][boat.position.col].direction
+              ))
+        case 'RETURN_BOAT_TO_ORIGIN':
+          return state.updateIn( ['boats', action.boat], (boat) =>
+              boat.update( 'position', (position) => state.getIn( [ 'ports', boat.originalPort ]).position
+              ))
+        default:
+          return state
+      }
+    };
+
+    const windFlowField = function windFlowField( ts) {
+      // Uses the Noise module, globally declared within imported libs/perlin.js
+      const MESH_WIDTH = 33;
+      const MESH_HEIGHT = 23;
+
+      if (ts === undefined)
+        ts = Math.random(); // Time seed for Perlin Noise
+      Noise.seed( ts);
+
+      // Parameters of the noise map can (and probably will need to) be adjusted:
+      // * increments within the noise map = currently col|row / 10.0 (might be smaller or bigger increments);
+      // * magnitude: currently 360.0, can be adjusted to whatever;
+      // * use of absolute value, but we might want to keep negative values.
+      let data = [];
+      for (let row = 0; row < MESH_HEIGHT; row++) {
+        data[ row] = [];
+        for (let col = 0; col < MESH_WIDTH; col++) {
+          var value =  Math.abs( Noise.perlin2( col / 10.0, row / 10.0));
+          data[ row][ col] = new Schema.Wind({ strength: Math.floor(Math.random() * Math.floor(3)),
+                             direction: Math.ceil( value * 360), position: new Schema.MeshCoord({ row: row, col: col})});
+        }
+      }
+      console.dir( data);
+      return data;
+    };
+
+    const initialState = Immutable.Map({
+      boats: Immutable.Map({
+        'BOAT1': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 9, col: 4 }),
+          direction: 0,
+          windDirection: 0,
+          originalPort: 'NYN',
+          targetPort: 'MTX' }),
+        'BOAT2': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 9, col: 4 }),
+          direction: 0,
+          windDirection: 60,
+          originalPort: 'NYN',
+          targetPort: 'TLB' }),
+        'BOAT3': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 9, col: 14 }),
+          direction: 0,
+          windDirection: 90,
+          originalPort: 'TLB',
+          targetPort: 'LSN' }),
+        'BOAT4': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 9, col: 14 }),
+          direction: 0,
+          windDirection: 180,
+          originalPort: 'TLB',
+          targetPort: 'MTX' }),
+        'BOAT5': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 1, col: 17 }),
+          direction: 90,
+          windDirection: 270,
+          originalPort: 'LSN',
+          targetPort: 'TLB' }),
+        'BOAT6': new Schema.Boat({
+          position: new Schema.MeshCoord({ row: 1, col: 17 }),
+          direction: 90,
+          windDirection: 270,
+          originalPort: 'TLB',
+          targetPort: 'NYN' })
+      }),
+      ports: Immutable.Map({
+        'LSN': new Schema.Port({
+          name: 'Lausanne',
+          position: new Schema.MeshCoord({ row: 1, col: 17 })
+        }),
+        'GVA': new Schema.Port({
+          name: 'Geneva',
+          position: new Schema.MeshCoord({ row: 21, col: 0 })
+        }),
+        'NYN': new Schema.Port({
+          name: 'Nyon',
+          position: new Schema.MeshCoord({ row: 8, col: 5 })
+        }),
+        'TLB': new Schema.Port({
+          name: 'Thonons-Les-Bains',
+          position: new Schema.MeshCoord({ row: 8, col: 14 })
+        }),
+        'MTX': new Schema.Port({
+          name: 'Montreux',
+          position: new Schema.MeshCoord({ row: 5, col: 30 })
+        })
+      }),
+      weatherStations: Immutable.Map({
+        'WeatherStation1': new Schema.WeatherStation({
+          name: 'WeatherStation1',
+          position: new Schema.MeshCoord({ row: 2, col: 9 })
+        })
+      }),
+      lakeMesh: new Schema.Mesh({
+        width: 32,
+        height: 22,
+        tiles: [
+          // rows 0-9
+          // 0                            10                            20                            30  
+          [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ]
+        , [ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ]
+        , [ 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 ]
+        , [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
+        , [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
+        , [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 ]
+        , [ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+          // rows 10-19
+          // 0                            10                            20                            30
+        , [ 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+          // rows 20-21
+          // 0                            10                            20                            30
+        , [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        , [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        ]
+      }),
+      windMesh: new Schema.Mesh({
+        width: 33,
+        height: 23,
+        tiles: windFlowField( Math.random())
+      })
+    }); // initialState
+
+    return {
+      initialState: initialState,
+      actionHandler: actionHandler
+    };
+  })();
+</script>

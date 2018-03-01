@@ -1,0 +1,67 @@
+<link rel="import" href="../data/schema.html">
+
+<script>
+  "use strict";
+  const RenderingCoord = (function () {
+    return {
+      
+      //Fixed this
+      meshCoordToScene( meshCoord) {
+        const sceneX = (0.5 + meshCoord.col) * RenderingCoord.meshCoordScaler()
+          + RenderingCoord.meshCoordMinX();
+        const sceneY = (0.5 + meshCoord.row) * RenderingCoord.meshCoordScaler()
+          + RenderingCoord.meshCoordMinY();
+        return new Phaser.Geom.Point( sceneX, sceneY);
+      },
+
+      //Use to scale mesh back to x and y
+      //Currently 33 by 23 squares, each square is 50 pixels by 50
+      meshCoordScaler() {
+        return 50;
+      },
+
+      //Due to camera having rendering issues if moved, the top of the gameworld starts at x: -400, y: -300
+      meshCoordMinX() {
+        return -400;
+      },
+
+      meshCoordMinY() {
+        return -300;
+      },
+
+      // Updates the meshcoords of the boat in the data store
+      updateBoatMeshCoord(boatObject, boat, store) {
+
+        //Gets the quotient (the division result without the remainder)
+        var c = Math.floor((boatObject.x - RenderingCoord.meshCoordMinX()) / RenderingCoord.meshCoordScaler());
+        var r = Math.floor((boatObject.y - RenderingCoord.meshCoordMinY()) / RenderingCoord.meshCoordScaler());
+        
+        
+        //Basically if the meshCoordinates are now Outdated, update the mesh Coordinates
+        
+        if ((r != boat.position.row) || (c != boat.position.col)) {
+          
+          var newMeshCoord = new Schema.MeshCoord({ row: r, col: c });
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: boatObject.name, position: newMeshCoord});
+          store.dispatch( { type: 'CHANGE_BOAT_WIND_DIRECTION', boat : boatObject.name });
+        }
+
+        //If the boat has reached it's destination port, then return it to its original port in both the database and in the game world
+        var boatDestination = store.getState().getIn( [ 'ports', boat.targetPort ]).position;
+
+        if( boat.position.row == boatDestination.row && boat.position.col == boatDestination.col) {
+
+          var origin = store.getState().getIn( [ 'ports', boat.originalPort ]);
+          store.dispatch( { type: 'RETURN_BOAT_TO_ORIGIN', boat: boatObject.name } );
+          store.dispatch( { type: 'CHANGE_BOAT_POSITION', boat: boatObject.name, position: origin.position });
+          store.dispatch( { type: 'CHANGE_BOAT_WIND_DIRECTION', boat : boatObject.name});
+
+          boatObject.x = RenderingCoord.meshCoordToScene(origin.position).x;
+          boatObject.y = RenderingCoord.meshCoordToScene(origin.position).y;
+          boatObject.tweening = false;
+          }
+      }
+
+    };
+  })();
+</script>      

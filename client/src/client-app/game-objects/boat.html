@@ -1,0 +1,171 @@
+<link rel="import" href="../../libs/phaser-js.html">
+<link rel="import" href="../rendering/coord.html">
+
+<script>
+  "use strict";
+  class Boat extends Phaser.GameObjects.Sprite {
+    constructor( scene, name) {
+      console.info( `Boat: constructor( scene, '${name}') called`);
+      
+      // For now, Sprite has no position and is inactive; it will
+      // be activated and positionned with first `update()` call
+      super( scene, null, null, 'boat', 0);
+      this.setActive( false);
+
+      // Identifier of the boat, used to lookup its state in the datastore
+      this.setName( "" + name);
+      this.tweening = false;
+
+      // Properties that are synced from the datastore state
+      this.data = null;
+      this.direction = null;
+      this.windDirection = null;
+
+      // Rescales the boat from 600 pixels to 100
+      this.setScale( 0.1667, 0.1667);
+
+      // Defines a tint
+      this.setTint( Math.random() * 16000000);
+
+      // Add an event listener, to change tint on click
+      let boat = this;
+      this.setInteractive();
+      this.on( 'pointerdown', function boatClicked() {
+        boat.scene.data.get( 'store').dispatch({
+          type: 'CHANGE_BOAT_DIRECTION', boat: boat.name,
+          direction: Math.random() * 360.0 });
+      });
+
+      // Trigger initial synchronization of the Boat sprite state
+      // with the boat entity of the datastore it is bound to
+      this.update();
+    }
+
+    syncData() {
+      // Fetch the state of the boat from the datastore, looking up
+      // the boat entities for the one matching the boat name
+      const store = this.scene.data.get( 'store');
+      const boatState = store.getState().getIn( [ 'boats', this.name ]);
+
+      if (boatState === undefined) {
+        throw new Error( `Boat.constructor(): cannot bind to datastore; it is expected to contain a boat with given name '${name}'`);
+      }
+
+      // Data chunk describing the state of the boat (latest state);
+      // can be retrieved with `this.getData( 'state')` anytime
+      this.setData( 'state', boatState);
+
+      // Direction the boat is heading towards, expressed as an angle,
+      // in degrees: 0 = N, 45 = NE, 90 = E, 180 = S, 270 = W
+      this.direction = boatState.direction;
+
+      // Incoming direction of the wind, relative to the boat, expressed
+      // as an angle, in degrees: 0 = wind comes from N (front),
+      // 90 = wind comes from E (tribord), 180 = wind come from
+      // south (behind), 270 = wind comes from W (babord)
+      this.windDirection = boatState.windDirection;
+
+      return boatState;
+    }
+
+    update() {
+      console.info( "Boat: update() called");
+      // Fetch the state with the datastore
+      const boatState = this.syncData();
+
+      // Re-position the boat in scene coordinates
+
+      const store = this.scene.data.get( 'store');
+      //let target = RenderingCoord.meshCoordToScene( boatState.position);
+
+      if ((this.x == null) ||( this.y == null)) {
+        // Activate and position the sprite, if it was not positioned
+        console.log('Initialize boat');
+        let target = RenderingCoord.meshCoordToScene( boatState.position);
+        this.setActive( true);
+        this.x = target.x;
+        this.y = target.y;
+      } else if(this.tweening == false){
+        this.tweening = true;
+
+        let target = RenderingCoord.meshCoordToScene( store.getState().getIn( [ 'ports', boatState.targetPort ]).position);
+
+        
+        //If the wind speeds are higher, then the boats move faster
+        var speed = store.getState().get( 'windMesh').tiles[boatState.position.row][boatState.position.col].strength * 1.25;
+        if(speed == null|| speed == 0) speed = 1;
+        
+        //Without the +1, once the target is reached the x and y value is 0, which means the duration is 0, so it doesn't render
+        this.scene.tweens.add({
+          targets: this,
+           x: { value: target.x, duration: (30 * Math.abs((target.x - this.x)) + 1) / speed},
+           y: { value: target.y, duration: (30 * Math.abs((target.y - this.y)) + 1) / speed},
+           onComplete: function (test) { 
+             console.log("done tweening!");
+          }
+        });
+      } 
+
+      // Select correct sprite frame, depending on current
+      // boat direction and incoming wind direction
+      //
+      // FIXME: correct the algorithm with the number of frames
+      // we currently have
+      let _boatDirQuadrant = 0;
+      let _calcSailType = 0;
+      let _sailType = 0;
+
+      if (this.direction >= 315 || this.direction < 45) {
+        //facing up
+        _boatDirQuadrant = 0;
+      } else if (this.direction >= 45 && this.direction < 135) {
+        //facing right
+        _boatDirQuadrant = 1;
+      } else if (this.direction >= 135 &&  this.direction < 225) {
+        //facing down
+        _boatDirQuadrant = 2;
+      } else if (this.direction >=  225 && this.direction < 315) {
+        //facing left
+        _boatDirQuadrant = 3;
+      }
+
+      if (this.windDirection >= 315 || this.windDirection < 45) {
+        //If wind Direction is either north
+        _calcSailType = _boatDirQuadrant;
+      } else if (this.windDirection >=  45 && this.windDirection < 135) {
+        //If the wind direction is East
+        _calcSailType += 1;
+      } else if (this.windDirection >= 135 && this.windDirection < 225) {
+        //South
+        _calcSailType += 2;
+      } else if (this.windDirection >=  225 && this.windDirection < 315) {
+        //If the wind direction is west
+        _calcSailType += 3;
+      }
+      
+      //Ensures that if calcSailReduce is over, it loops around back to the start
+      for(var i = 0; i < _calcSailType; i++) {
+        if(i > 2) {
+          i = 0;
+        }
+      }
+
+      _calcSailType = i;
+      
+      var frame = ([ 1, 0, 1, 2])[ _calcSailType];
+      //If the wind is coming from behind, this gets whether the sail goes far left or right
+      if(frame == 1) {
+        if (this.windDirection > 180 && this.windDirection < 225) {
+          this.setFrame(1);
+        }  else if (this.windDirection < 180 && this.windDirection > 135) { 
+          this.setFrame(3);
+        }
+      
+      } else {
+        this.setFrame(frame);
+      }
+      
+      this.angle = this.direction;
+    }
+  }
+</script>

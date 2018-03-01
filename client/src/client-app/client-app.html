@@ -1,18 +1,27 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<script src="/bower_components/phaser/dist/phaser.js"></script>
-<script src="/bower_components/phaser/dist/phaser-arcade-physics.js"></script>
+<link rel="import" href="../libs/phaser-js.html">
+<link rel="import" href="../libs/phaser-arcade-physics-js.html">
+<link rel="import" href="../libs/immutable-js.html">
+<link rel="import" href="../libs/redux-js.html">
+<link rel="import" href="data/schema.html">
+<link rel="import" href="data/store.html">
+<link rel="import" href="game-objects/boat.html">
+<link rel="import" href="game-objects/port.html">
+<link rel="import" href="game-objects/wind.html">
+<link rel="import" href="rendering/coord.html">
 
 <dom-module id="client-app">
   <template>
     <style>
-      :host {
-        display: block;
-      }
+      :host { display: block; }
+      h2 { font-weight: 200; }
     </style>
-    <h2>Hello [[greeting]]!</h2>
+    <h2>Boats and winds · [[name]]</h2>
   </template>
 
   <script>
+    "use strict";
+
     /**
      * @customElement
      * @polymer
@@ -21,43 +30,124 @@
       static get is() { return 'client-app'; }
       static get properties() {
         return {
-          greeting: {
+          name: {
             type: String,
-            value: 'Gus'
+            value: 'lac Léman'
           }
         };
       }
 
       preload() {
-        // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
-        var game = this; 
-        game.load.setBaseURL('http://labs.phaser.io');
-        game.load.image('sky', 'assets/skies/space3.png');
-        game.load.image('logo', 'assets/sprites/phaser3-logo.png');
-        game.load.image('red', 'assets/particles/red.png');
+        // Note: Phaser sets `this` to the current Phaser Scene instance before calling this function
+        const scene = this;
+
+        // Load images and spritesheet assets
+        scene.load.spritesheet( 'boat', 'assets/boat/boat-spritesheet.png', { frameWidth: 600, frameHeight: 600, endFrame: 4 });
+        scene.load.spritesheet( 'wind', 'assets/wind/wind-spritesheet.png', { frameWidth: 50, frameHeight: 50, endFrame: 3 });
+        scene.load.image( 'landmark', 'assets/landmark/landmark.png', { frameWidth: 50, frameHeight: 50, endFrame: 3 });
+        scene.load.image( 'lake', 'assets/lake/lake-contour.png');
+        // scene.load.image( 'earth', 'assets/lake/lake-earth-around.png');
+
+        // Store is declared within data/store.html module
+        const store = Redux.createStore( Store.actionHandler, Store.initialState);
+        scene.data.set( 'store', store);
+
+        console.dir( scene);
       }
 
       create() {
-        // Note: Phaser sets `this` to the Phaser Game instance object before calling this function
-        var game = this;
+        // Note: Phaser sets `this` to the Phaser Scene instance before calling this function
+        const scene = this;
+        const store = scene.data.get( 'store');
+        console.dir( store.getState());
 
-        game.add.image( 400, 300, 'sky');
-
-        var particles = game.add.particles( 'red');
-
-        var emitter = particles.createEmitter({
-            speed: 100,
-            scale: { start: 1, end: 0 },
-            blendMode: 'ADD'
+        // Transform Redux datastore state changes into Phaser events
+        store.unsubscribe = store.subscribe( function handleStoreStateChange() {
+          console.info( "Store: handleStoreStateChange() emits `store-state-change` Phaser event")
+          scene.events.emit( 'store-state-changed');
+        });
+        
+        //This phaser event occurs after any update to the data store, and it re-renders all gameobjects in the scene
+        scene.events.on( 'store-state-changed', function () {
+          scene.render();
         });
 
-        var logo = game.physics.add.image( 400, 100, 'logo');
+        //NOTE: Zooming out and readjusting viewport means that things don't render beyond 1200 x 900
+        scene.cameras.main.setZoom( 0.5);
+        scene.add.image( 400, 300, 'lake'); // Current Map size: 1600 x 1200 pixels
 
-        logo.setVelocity( 100, 200);
-        logo.setBounce( 1, 1);
-        logo.setCollideWorldBounds( true);
+        // Add boats to the scene from the data store
 
-        emitter.startFollow( logo);
+        var boats = store.getState().get( 'boats');
+        
+        for(var z = 0; z < boats.count(); z++ ) {
+          
+          var boatName = 'BOAT'+(z+1).toString();
+          var boat = store.getState().getIn( [ 'boats', boatName ]);
+
+          store.dispatch( { type: 'RETURN_BOAT_TO_ORIGIN', boat: boatName } );
+          scene.children.add( new Boat( scene, boatName));
+        }
+
+        //Visually displays the wind matrix to the scene
+        var windMesh = store.getState().get( 'windMesh');
+        for(var h = 0; h < windMesh.height; h++ ) {
+          for(var w = 0; w < windMesh.width; w++ ) {
+            scene.children.add( new Wind( scene, h, w));
+          }
+        }
+
+        // Adds the ports to the scene
+        scene.children.add( new Port( scene, 'LSN'));
+        scene.children.add( new Port( scene, 'GVA'));
+        scene.children.add( new Port( scene, 'NYN'));
+        scene.children.add( new Port( scene, 'TLB'));
+        scene.children.add( new Port( scene, 'MTX'));
+        
+      }
+
+      update( time, delta) {
+        const NEXT_TIME_INTERVAL = 4000; // 4000ms = 4s
+        const scene = this;
+        const nextTime = this.nextTime;
+        
+        //After this time, the data store is edited
+        if ((nextTime === undefined) || (time > nextTime)) {
+          console.info( 'Scene: update() is dispatching actions');
+          this.nextTime = time + NEXT_TIME_INTERVAL;
+          
+          const store = scene.data.get( 'store');
+
+          //Checks to see, and updates, boat positions in the data store
+          var boats = store.getState().get( 'boats');
+
+          for(var z = 0; z < boats.count(); z++ ) {
+            var boatName = 'BOAT'+(z+1).toString();
+            var boat = store.getState().getIn( [ 'boats', boatName ]);
+            RenderingCoord.updateBoatMeshCoord( scene.children.getByName(boatName), boat, store);
+          }
+          
+          //Every update round, there is a one in two chance that the winds change
+          //The boats then update so that they can change their sail positions
+          if(Math.floor(Math.floor(Math.random() * 2) == 0)) {
+            store.dispatch( { type: 'CHANGE_WINDS_DIRECTION' });
+            store.dispatch( { type: 'CHANGE_BOATS_WIND_DIRECTION'});
+          }
+          
+          
+        }
+      }
+
+      render() {
+        
+        console.info( 'Scene: render() was called');
+        const scene = this;
+
+        // Ask every game object of the scene to synchronize
+        // with the new state of the datastore
+        scene.children.each( function (child) {
+          child.update();
+        });
       }
 
       constructor() {
@@ -70,18 +160,20 @@
           physics: {
             default: 'arcade',
             arcade: {
-              gravity: { y: 200 }
+              gravity: { y: 0 }
             }
           },
           scene: {
             preload: this.preload,
-            create: this.create
+            create: this.create,
+            update: this.update,
+            render: this.render
           }
         };
 
-        this.game = new Phaser.Game( this.config);
-      }
-    }
+        this.game = new Phaser.Game( this.config); 
+      } // constructor
+    } // class
 
     window.customElements.define( ClientApp.is, ClientApp);
   </script>

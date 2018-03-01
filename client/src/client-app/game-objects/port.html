@@ -1,0 +1,67 @@
+<link rel="import" href="../../libs/phaser-js.html">
+<link rel="import" href="../rendering/coord.html">
+
+<script>
+  "use strict";
+  class Port extends Phaser.GameObjects.Sprite {
+    constructor( scene, name) {
+      console.info( `Port: constructor( scene, '${name}') called`);
+
+      // For now, Sprite has no position and is inactive; it will
+      // be activated and positionned with first `update()` call
+      super( scene, null, null, 'landmark', 0);
+      this.setActive( false);
+
+      // Identifier of the port, used to lookup its state in the datastore
+      this.setName( "" + name);
+
+      // Properties that are synced from the datastore state
+      this.data = null;
+
+      // Trigger initial synchronization of the Boat sprite state
+      // with the boat entity of the datastore it is bound to
+      this.update();
+    }
+
+    syncData() {
+      // Fetch the state of the boat, looking up the ports of the
+      // datastore by this port's name
+      const store = this.scene.data.get( 'store');
+      const portState = store.getState().getIn( [ 'ports', this.name ]);
+
+      if (portState === undefined)
+        throw new Error( `Port.constructor(): cannot bind to datastore; it is expected to contain a port with given name '${name}'`);
+
+      // Data chunk describing the state of the port (latest state);
+      // can later be retrieved with `this.getData( 'state')`
+      this.setData( 'state', portState);
+
+      return portState;
+    }
+
+    update() {
+      console.info( "Port: update() called");
+
+      // Fetch the state with the datastore
+      const portState = this.syncData();
+      
+      // Target position of the port in the scene
+      let target = RenderingCoord.meshCoordToScene( portState.position);
+
+      if ((this.x == null) ||( this.y == null)) {
+        // Activate and position the sprite, if it was not positioned
+        this.setActive( true);
+        this.x = target.x;
+        this.y = target.y;
+      } else {
+        // In case some groundbreaking force would move the port :)
+        this.scene.tweens.add({
+          targets: this,
+           x: { value: target.x, duration: 3000 },
+           y: { value: target.y, duration: 3000 }
+        });
+      }
+      return true;
+    }
+  }
+</script>

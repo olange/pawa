@@ -10,7 +10,7 @@
 * [Git](https://git-scm.com) client or command-line – for instance, install [GitHub Desktop](https://desktop.github.com)
 * A coding editor, for instance [Visual Studio Code](https://code.visualstudio.com), [Atom](https://atom.io), …
 * [NodeJS](https://nodejs.org/en/) version 8, or more recent – NodeJS is a JavaScript runtime built on Chrome's V8 engine
-* [Java SDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html) version 8, or more recent, which is needed to run the Neo4j database server – note the Java Runtime Environment (JRE) is not enough!
+* [Java SDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) version 8, which is needed to run the Neo4j database server – note the Java Runtime Environment (JRE) is not enough, and that Java version 9 is not supported yet by Neo4j 3.3!
 
 ## Setup
 
@@ -28,8 +28,7 @@ npm install -g bower
 ```bash
 git clone git@github.com:olange/pawa.git
 cd pawa/
-cd client/
-bower install
+npm install
 ```
 
 ### Download the Neo4j database server
@@ -50,8 +49,18 @@ See also: [Installation instructions](https://neo4j.com/docs/operations-manual/c
 ### Run the client app
 
 ```bash
-cd client/
-polymer serve
+npm run start-app
+```
+
+You should see an output along the following lines:
+
+```bash
+> pawa@1.0.0 start-app …/pawa
+> cd client && polymer serve
+
+info:    Files in this directory are available under the following URLs
+      applications: http://127.0.0.1:8081
+      reusable components: http://127.0.0.1:8081/components/client/
 ```
 
 ### Run the Neo4j database server
@@ -59,23 +68,27 @@ polymer serve
 Open another terminal window and navigate to the project folder:
 
 ```bash
-cd pawa/server/db/
-neo4j-community-‹version›/bin/neo4j console
+npm run start-db
 ```
 
 And you should see an output along the lines:
 
 ```bash
+> pawa@1.0.0 start-db …/pawa
+> run-script-os
+
+…
+
 Active database: graph.db
 Directories in use:
-  home:         /Users/oliv/Sources/pawa/server/db/neo4j-community-3.3.3
-  config:       /Users/oliv/Sources/pawa/server/db/neo4j-community-3.3.3/conf
-  logs:         /Users/oliv/Sources/pawa/server/db/neo4j-community-3.3.3/logs
-  plugins:      /Users/oliv/Sources/pawa/server/db/neo4j-community-3.3.3/plugins
-  import:       /Users/oliv/Sources/pawa/server/db/neo4j-community-3.3.3/import
-  data:         /Users/oliv/Sources/pawa/server/db/neo4j-community-3.3.3/data
-  certificates: /Users/oliv/Sources/pawa/server/db/neo4j-community-3.3.3/certificates
-  run:          /Users/oliv/Sources/pawa/server/db/neo4j-community-3.3.3/run
+  home:         …/pawa/server/db/neo4j-community-3.3.3
+  config:       …/pawa/server/db/neo4j-community-3.3.3/conf
+  logs:         …/pawa/server/db/neo4j-community-3.3.3/logs
+  plugins:      …/pawa/server/db/neo4j-community-3.3.3/plugins
+  import:       …/pawa/server/db/neo4j-community-3.3.3/import
+  data:         …/pawa/server/db/neo4j-community-3.3.3/data
+  certificates: …/pawa/server/db/neo4j-community-3.3.3/certificates
+  run:          …/pawa/server/db/neo4j-community-3.3.3/run
 Starting Neo4j.
 2018-02-15 16:56:23.024+0000 INFO  ======== Neo4j 3.3.3 ========
 2018-02-15 16:56:23.060+0000 INFO  Starting...

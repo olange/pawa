@@ -1,6 +1,6 @@
 {
   "name": "pawa",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A web animation of boats and winds",
   "main": "index.js",
   "directories": {

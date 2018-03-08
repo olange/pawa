@@ -4,6 +4,10 @@ Web animation of boats riding the winds of lake Leman, using the [Phaser.io](htt
 
 <img height="200" src="docs/images/boats-and-winds-screenshot.png">
 
+## Version
+
+[1.1, 08.03.2017](https://github.com/olange/pawa/releases)
+
 ## Setup
 
 See the [contributing guide](docs/CONTRIBUTING.md) to setup your development environment. In a nutshell, here's how to download the sources and fetch the client app dependencies:

@@ -23,7 +23,7 @@ Open a first terminal window and start the Neo4j database server; you can then a
 ```bash
 npm run start-db
 ```
-
+ 
 Then open a second terminal window and start the Polymer application server; you can then access the front-end app at [`http://localhost:8081`](http://localhost:8081):
 
 ```bash
